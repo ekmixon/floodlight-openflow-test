@@ -3,6 +3,7 @@ Platform configuration file
 platform == veth_inject
 """
 
+
 ###############################################################################
 #
 # This platform assumes the loopback configuration file
@@ -28,7 +29,7 @@ import yaml
 # The loopback port specification is passed via the "--platform-args"
 # option to OFTest. 
 # Note that we must guard against abbreviations supported by argparse
-if not "--platform-args" in " ".join(sys.argv):
+if "--platform-args" not in " ".join(sys.argv):
     raise Exception("--platform-args must be specified")
 
 ap = argparse.ArgumentParser("veth_inject")

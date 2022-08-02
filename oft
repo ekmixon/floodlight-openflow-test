@@ -221,11 +221,11 @@ prefixing them with the '^' character.
     (options, args) = parser.parse_args()
 
     # If --test-dir wasn't given, pick one based on the OpenFlow version
-    if options.test_dir == None:
+    if options.test_dir is None:
         if options.openflow_version == "1.0":
             options.test_dir = os.path.join(ROOT_DIR, "tests")
         else:
-            options.test_dir = os.path.join(ROOT_DIR, "tests-" + options.openflow_version)
+            options.test_dir = os.path.join(ROOT_DIR, f"tests-{options.openflow_version}")
 
     # Convert options from a Namespace to a plain dictionary
     config = CONFIG_DEFAULT.copy()
@@ -241,15 +241,15 @@ def logging_setup(config):
 
     logging.getLogger().setLevel(DEBUG_LEVELS[config["debug"]])
 
-    if config["log_dir"] != None:
+    if config["log_dir"] is None:
+        if os.path.exists(config["log_file"]):
+            os.remove(config["log_file"])
+
+    else:
         if os.path.exists(config["log_dir"]):
             import shutil
             shutil.rmtree(config["log_dir"])
         os.makedirs(config["log_dir"])
-    else:
-        if os.path.exists(config["log_file"]):
-            os.remove(config["log_file"])
-
     oftest.open_logfile('main')
 
 def xunit_setup(config):
@@ -270,12 +270,9 @@ def pcap_setup(config):
     Set up dataplane packet capturing based on config
     """
 
-    if config["log_dir"] == None:
+    if config["log_dir"] is None:
         filename = os.path.splitext(config["log_file"])[0] + '.pcap'
         oftest.dataplane_instance.start_pcap(filename)
-    else:
-        # start_pcap is called per-test in base_tests
-        pass
 
 def profiler_setup(config):
     """
@@ -330,14 +327,16 @@ def load_test_modules(config):
                 else:
                     mod = imp.load_module(modname, *imp.find_module(modname, [root]))
             except:
-                logging.warning("Could not import file " + filename)
+                logging.warning(f"Could not import file {filename}")
                 raise
 
-            # Find all testcases defined in the module
-            tests = dict((k, v) for (k, v) in mod.__dict__.items() if type(v) == type and
-                                                                      issubclass(v, unittest.TestCase) and
-                                                                      hasattr(v, "runTest"))
-            if tests:
+            if tests := {
+                k: v
+                for (k, v) in mod.__dict__.items()
+                if type(v) == type
+                and issubclass(v, unittest.TestCase)
+                and hasattr(v, "runTest")
+            }:
                 for (testname, test) in tests.items():
                     # Set default annotation values
                     if not hasattr(test, "_groups"):
@@ -380,20 +379,19 @@ def prune_tests(test_specs, test_modules, version):
 
         for (modname, (mod, tests)) in test_modules.items():
             for (testname, test) in tests.items():
-                if e in test._groups or e == "%s.%s" % (modname, testname):
+                if e in test._groups or e == f"{modname}.{testname}":
                     result.setdefault(modname, (mod, {}))
-                    if not negated:
-                        if not hasattr(test, "_versions") or version in test._versions:
-                            result[modname][1][testname] = test
-                    else:
+                    if negated:
                         if modname in result and testname in result[modname][1]:
                             del result[modname][1][testname]
                             if not result[modname][1]:
                                 del result[modname]
+                    elif not hasattr(test, "_versions") or version in test._versions:
+                        result[modname][1][testname] = test
                     matched = True
 
         if not matched:
-            die("test-spec element %s did not match any tests" % e)
+            die(f"test-spec element {e} did not match any tests")
 
     return result
 
@@ -411,10 +409,10 @@ oftest.config.update(new_config)
 
 logging_setup(config)
 xunit_setup(config)
-logging.info("++++++++ " + time.asctime() + " ++++++++")
+logging.info(f"++++++++ {time.asctime()} ++++++++")
 
 # Pick an OpenFlow protocol module based on the configured version
-name_to_version = dict((v,k) for k, v in loxi.version_names.iteritems())
+name_to_version = {v: k for k, v in loxi.version_names.iteritems()}
 sys.modules["ofp"] = loxi.protocol(name_to_version[config["openflow_version"]])
 
 # HACK: testutils.py imports controller.py, which needs the ofp module
@@ -431,8 +429,7 @@ if config["test_file"] != None:
     with open(config["test_file"], 'r') as f:
         for line in f:
             line, _, _ = line.partition('#') # remove comments
-            line = line.strip()
-            if line:
+            if line := line.strip():
                 test_specs.append(line)
 if test_specs == []:
     test_specs = ["standard"]
@@ -470,22 +467,21 @@ Test List:
         for (testname, test) in tests.items():
             desc = (test.__doc__ or "No description").strip().split('\n')[0]
 
-            groups = set(test._groups) - set(["all", "standard", modname])
+            groups = set(test._groups) - {"all", "standard", modname}
             all_groups.update(test._groups)
             if groups:
-                desc = "(%s) %s" % (",".join(groups), desc)
+                desc = f'({",".join(groups)}) {desc}'
             if hasattr(test, "_versions"):
-                desc = "(%s) %s" % (",".join(sorted(test._versions)), desc)
+                desc = f'({",".join(sorted(test._versions))}) {desc}'
 
-            start_str = " %s%s %s:" % (test._nonstandard and "*" or " ",
-                                       test._disabled and "!" or " ",
-                                       testname)
+            start_str = f' {test._nonstandard and "*" or " "}{test._disabled and "!" or " "} {testname}:'
+
             print("  %22s : %s" % (start_str, desc))
             test_count += 1
         print
     print("'%d' modules shown with a total of '%d' tests\n" %
           (mod_count, test_count))
-    print("Test groups: %s" % (', '.join(sorted(all_groups))))
+    print(f"Test groups: {', '.join(sorted(all_groups))}")
 
     sys.exit(0)
 
@@ -495,7 +491,7 @@ test_modules = prune_tests(test_specs, test_modules, config["openflow_version"])
 if config["list_test_names"]:
     for (modname, (mod, tests)) in test_modules.items():
         for (testname, test) in tests.items():
-            print("%s.%s" % (modname, testname))
+            print(f"{modname}.{testname}")
 
     sys.exit(0)
 
@@ -505,9 +501,7 @@ suite = unittest.TestSuite()
 
 sorted_tests = []
 for (modname, (mod, tests)) in sorted(test_modules.items()):
-    for (testname, test) in sorted(tests.items()):
-        sorted_tests.append(test)
-
+    sorted_tests.extend(test for testname, test in sorted(tests.items()))
 if config["random_order"]:
     random.shuffle(sorted_tests)
 
@@ -519,12 +513,12 @@ sys.path.append(config["platform_dir"])
 
 # Load the platform module
 platform_name = config["platform"]
-logging.info("Importing platform: " + platform_name)
+logging.info(f"Importing platform: {platform_name}")
 platform_mod = None
 try:
     platform_mod = imp.load_module(platform_name, *imp.find_module(platform_name, [config["platform_dir"]]))
 except:
-    logging.warn("Failed to import " + platform_name + " platform module")
+    logging.warn(f"Failed to import {platform_name} platform module")
     raise
 
 try:
@@ -536,7 +530,7 @@ except:
 if not config["port_map"]:
     die("Interface port map was not defined by the platform. Exiting.")
 
-logging.debug("Configuration: " + str(config))
+logging.debug(f"Configuration: {str(config)}")
 logging.info("OF port map: " + str(config["port_map"]))
 
 oftest.ofutils.default_timeout = config["default_timeout"]
@@ -569,7 +563,7 @@ if __name__ == "__main__":
     for of_port, ifname in config["port_map"].items():
         oftest.dataplane_instance.port_add(ifname, of_port)
 
-    logging.info("*** TEST RUN START: " + time.asctime())
+    logging.info(f"*** TEST RUN START: {time.asctime()}")
     if config["xunit"]:
         try:
             import xmlrunner  # fail-fast if module missing
@@ -577,10 +571,12 @@ if __name__ == "__main__":
             oftest.dataplane_instance.kill()
             profiler_teardown(profiler)
             raise ex
-        runner = xmlrunner.XMLTestRunner(output=config["xunit_dir"],
-                                         outsuffix=config["xunit_suffix"]
-                                         if config["xunit_suffix"] else "",
-                                         verbosity=2)
+        runner = xmlrunner.XMLTestRunner(
+            output=config["xunit_dir"],
+            outsuffix=config["xunit_suffix"] or "",
+            verbosity=2,
+        )
+
         result = runner.run(suite)
     else:
         result = unittest.TextTestRunner(verbosity=2).run(suite)

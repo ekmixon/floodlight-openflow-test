@@ -48,16 +48,17 @@ class DataPlanePortVPI:
         """
         self.interface_name = interface_name
         self.port_number = port_number
-        logname = "VPI:" + interface_name
+        logname = f"VPI:{interface_name}"
         self.logger = logging.getLogger(logname)
-        
-        path = "."
-        if config['log_file']:
-            path = config['log_file']
 
-        if self.vpiInit(interface_name, port_number, 
-                        os.path.dirname(os.path.abspath(path))) == None:
-            raise Exception("Could not create VPI interface %s" % interface_name)
+        path = config['log_file'] or "."
+        if (
+            self.vpiInit(
+                interface_name, port_number, os.path.dirname(os.path.abspath(path))
+            )
+            is None
+        ):
+            raise Exception(f"Could not create VPI interface {interface_name}")
 
         self.logger.info("VPI: %s:%d\n" % (interface_name, port_number))
 

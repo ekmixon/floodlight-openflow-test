@@ -20,31 +20,23 @@ class message(loxi.OFObject):
     version = 2
 
     def __init__(self, type=None, xid=None):
-        if type != None:
-            self.type = type
-        else:
-            self.type = 0
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
+        self.type = type if type != None else 0
+        self.xid = xid if xid != None else None
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
     @staticmethod
     def unpack(reader):
         subtype, = reader.peek('B', 1)
-        subclass = message.subtypes.get(subtype)
-        if subclass:
+        if subclass := message.subtypes.get(subtype):
             return subclass.unpack(reader)
 
         obj = message()
@@ -59,9 +51,7 @@ class message(loxi.OFObject):
 
     def __eq__(self, other):
         if type(self) != type(other): return False
-        if self.type != other.type: return False
-        if self.xid != other.xid: return False
-        return True
+        return False if self.type != other.type else self.xid == other.xid
 
     def pretty_print(self, q):
         q.text("message {")
@@ -84,38 +74,26 @@ class stats_reply(message):
     type = 19
 
     def __init__(self, xid=None, stats_type=None, flags=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
-        if stats_type != None:
-            self.stats_type = stats_type
-        else:
-            self.stats_type = 0
-        if flags != None:
-            self.flags = flags
-        else:
-            self.flags = 0
+        self.xid = xid if xid != None else None
+        self.stats_type = stats_type if stats_type != None else 0
+        self.flags = flags if flags != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!H", self.stats_type))
-        packed.append(struct.pack("!H", self.flags))
-        packed.append('\x00' * 4)
-        length = sum([len(x) for x in packed])
+        packed.extend((struct.pack("!H", self.flags), '\x00' * 4))
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
     @staticmethod
     def unpack(reader):
         subtype, = reader.peek('!H', 8)
-        subclass = stats_reply.subtypes.get(subtype)
-        if subclass:
+        if subclass := stats_reply.subtypes.get(subtype):
             return subclass.unpack(reader)
 
         obj = stats_reply()
@@ -136,8 +114,7 @@ class stats_reply(message):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
         if self.stats_type != other.stats_type: return False
-        if self.flags != other.flags: return False
-        return True
+        return self.flags == other.flags
 
     def pretty_print(self, q):
         q.text("stats_reply {")
@@ -145,11 +122,12 @@ class stats_reply(message):
             with q.indent(2):
                 q.breakable()
                 q.text("xid = ");
-                if self.xid != None:
-                    q.text("%#x" % self.xid)
-                else:
+                if self.xid is None:
                     q.text('None')
-                q.text(","); q.breakable()
+                else:
+                    q.text("%#x" % self.xid)
+                q.text(",")
+                q.breakable()
                 q.text("flags = ");
                 value_name_map = {1: 'OFPSF_REPLY_MORE'}
                 q.text(util.pretty_flags(self.flags, value_name_map.values()))
@@ -164,42 +142,24 @@ class aggregate_stats_reply(stats_reply):
     stats_type = 2
 
     def __init__(self, xid=None, flags=None, packet_count=None, byte_count=None, flow_count=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
-        if flags != None:
-            self.flags = flags
-        else:
-            self.flags = 0
-        if packet_count != None:
-            self.packet_count = packet_count
-        else:
-            self.packet_count = 0
-        if byte_count != None:
-            self.byte_count = byte_count
-        else:
-            self.byte_count = 0
-        if flow_count != None:
-            self.flow_count = flow_count
-        else:
-            self.flow_count = 0
+        self.xid = xid if xid != None else None
+        self.flags = flags if flags != None else 0
+        self.packet_count = packet_count if packet_count != None else 0
+        self.byte_count = byte_count if byte_count != None else 0
+        self.flow_count = flow_count if flow_count != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!H", self.stats_type))
-        packed.append(struct.pack("!H", self.flags))
-        packed.append('\x00' * 4)
+        packed.extend((struct.pack("!H", self.flags), '\x00' * 4))
         packed.append(struct.pack("!Q", self.packet_count))
         packed.append(struct.pack("!Q", self.byte_count))
-        packed.append(struct.pack("!L", self.flow_count))
-        packed.append('\x00' * 4)
-        length = sum([len(x) for x in packed])
+        packed.extend((struct.pack("!L", self.flow_count), '\x00' * 4))
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -230,8 +190,7 @@ class aggregate_stats_reply(stats_reply):
         if self.flags != other.flags: return False
         if self.packet_count != other.packet_count: return False
         if self.byte_count != other.byte_count: return False
-        if self.flow_count != other.flow_count: return False
-        return True
+        return self.flow_count == other.flow_count
 
     def pretty_print(self, q):
         q.text("aggregate_stats_reply {")
@@ -239,21 +198,25 @@ class aggregate_stats_reply(stats_reply):
             with q.indent(2):
                 q.breakable()
                 q.text("xid = ");
-                if self.xid != None:
-                    q.text("%#x" % self.xid)
-                else:
+                if self.xid is None:
                     q.text('None')
-                q.text(","); q.breakable()
+                else:
+                    q.text("%#x" % self.xid)
+                q.text(",")
+                q.breakable()
                 q.text("flags = ");
                 value_name_map = {1: 'OFPSF_REPLY_MORE'}
                 q.text(util.pretty_flags(self.flags, value_name_map.values()))
-                q.text(","); q.breakable()
+                q.text(",")
+                q.breakable()
                 q.text("packet_count = ");
                 q.text("%#x" % self.packet_count)
-                q.text(","); q.breakable()
+                q.text(",")
+                q.breakable()
                 q.text("byte_count = ");
                 q.text("%#x" % self.byte_count)
-                q.text(","); q.breakable()
+                q.text(",")
+                q.breakable()
                 q.text("flow_count = ");
                 q.text("%#x" % self.flow_count)
             q.breakable()
@@ -268,38 +231,26 @@ class stats_request(message):
     type = 18
 
     def __init__(self, xid=None, stats_type=None, flags=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
-        if stats_type != None:
-            self.stats_type = stats_type
-        else:
-            self.stats_type = 0
-        if flags != None:
-            self.flags = flags
-        else:
-            self.flags = 0
+        self.xid = xid if xid != None else None
+        self.stats_type = stats_type if stats_type != None else 0
+        self.flags = flags if flags != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!H", self.stats_type))
-        packed.append(struct.pack("!H", self.flags))
-        packed.append('\x00' * 4)
-        length = sum([len(x) for x in packed])
+        packed.extend((struct.pack("!H", self.flags), '\x00' * 4))
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
     @staticmethod
     def unpack(reader):
         subtype, = reader.peek('!H', 8)
-        subclass = stats_request.subtypes.get(subtype)
-        if subclass:
+        if subclass := stats_request.subtypes.get(subtype):
             return subclass.unpack(reader)
 
         obj = stats_request()
@@ -320,8 +271,7 @@ class stats_request(message):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
         if self.stats_type != other.stats_type: return False
-        if self.flags != other.flags: return False
-        return True
+        return self.flags == other.flags
 
     def pretty_print(self, q):
         q.text("stats_request {")
@@ -329,11 +279,12 @@ class stats_request(message):
             with q.indent(2):
                 q.breakable()
                 q.text("xid = ");
-                if self.xid != None:
-                    q.text("%#x" % self.xid)
-                else:
+                if self.xid is None:
                     q.text('None')
-                q.text(","); q.breakable()
+                else:
+                    q.text("%#x" % self.xid)
+                q.text(",")
+                q.breakable()
                 q.text("flags = ");
                 value_name_map = {}
                 q.text(util.pretty_flags(self.flags, value_name_map.values()))
@@ -348,58 +299,30 @@ class aggregate_stats_request(stats_request):
     stats_type = 2
 
     def __init__(self, xid=None, flags=None, table_id=None, out_port=None, out_group=None, cookie=None, cookie_mask=None, match=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
-        if flags != None:
-            self.flags = flags
-        else:
-            self.flags = 0
-        if table_id != None:
-            self.table_id = table_id
-        else:
-            self.table_id = 0
-        if out_port != None:
-            self.out_port = out_port
-        else:
-            self.out_port = 0
-        if out_group != None:
-            self.out_group = out_group
-        else:
-            self.out_group = 0
-        if cookie != None:
-            self.cookie = cookie
-        else:
-            self.cookie = 0
-        if cookie_mask != None:
-            self.cookie_mask = cookie_mask
-        else:
-            self.cookie_mask = 0
-        if match != None:
-            self.match = match
-        else:
-            self.match = ofp.match()
+        self.xid = xid if xid != None else None
+        self.flags = flags if flags != None else 0
+        self.table_id = table_id if table_id != None else 0
+        self.out_port = out_port if out_port != None else 0
+        self.out_group = out_group if out_group != None else 0
+        self.cookie = cookie if cookie != None else 0
+        self.cookie_mask = cookie_mask if cookie_mask != None else 0
+        self.match = match if match != None else ofp.match()
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!H", self.stats_type))
-        packed.append(struct.pack("!H", self.flags))
-        packed.append('\x00' * 4)
-        packed.append(struct.pack("!B", self.table_id))
-        packed.append('\x00' * 3)
+        packed.extend((struct.pack("!H", self.flags), '\x00' * 4))
+        packed.extend((struct.pack("!B", self.table_id), '\x00' * 3))
         packed.append(util.pack_port_no(self.out_port))
-        packed.append(struct.pack("!L", self.out_group))
-        packed.append('\x00' * 4)
+        packed.extend((struct.pack("!L", self.out_group), '\x00' * 4))
         packed.append(struct.pack("!Q", self.cookie))
         packed.append(struct.pack("!Q", self.cookie_mask))
         packed.append(self.match.pack())
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -437,8 +360,7 @@ class aggregate_stats_request(stats_request):
         if self.out_group != other.out_group: return False
         if self.cookie != other.cookie: return False
         if self.cookie_mask != other.cookie_mask: return False
-        if self.match != other.match: return False
-        return True
+        return self.match == other.match
 
     def pretty_print(self, q):
         q.text("aggregate_stats_request {")
@@ -446,30 +368,37 @@ class aggregate_stats_request(stats_request):
             with q.indent(2):
                 q.breakable()
                 q.text("xid = ");
-                if self.xid != None:
-                    q.text("%#x" % self.xid)
-                else:
+                if self.xid is None:
                     q.text('None')
-                q.text(","); q.breakable()
+                else:
+                    q.text("%#x" % self.xid)
+                q.text(",")
+                q.breakable()
                 q.text("flags = ");
                 value_name_map = {}
                 q.text(util.pretty_flags(self.flags, value_name_map.values()))
-                q.text(","); q.breakable()
+                q.text(",")
+                q.breakable()
                 q.text("table_id = ");
                 q.text("%#x" % self.table_id)
-                q.text(","); q.breakable()
+                q.text(",")
+                q.breakable()
                 q.text("out_port = ");
                 q.text(util.pretty_port(self.out_port))
-                q.text(","); q.breakable()
+                q.text(",")
+                q.breakable()
                 q.text("out_group = ");
                 q.text("%#x" % self.out_group)
-                q.text(","); q.breakable()
+                q.text(",")
+                q.breakable()
                 q.text("cookie = ");
                 q.text("%#x" % self.cookie)
-                q.text(","); q.breakable()
+                q.text(",")
+                q.breakable()
                 q.text("cookie_mask = ");
                 q.text("%#x" % self.cookie_mask)
-                q.text(","); q.breakable()
+                q.text(",")
+                q.breakable()
                 q.text("match = ");
                 q.pp(self.match)
             q.breakable()
@@ -484,32 +413,24 @@ class error_msg(message):
     type = 1
 
     def __init__(self, xid=None, err_type=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
-        if err_type != None:
-            self.err_type = err_type
-        else:
-            self.err_type = 0
+        self.xid = xid if xid != None else None
+        self.err_type = err_type if err_type != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!H", self.err_type))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
     @staticmethod
     def unpack(reader):
         subtype, = reader.peek('!H', 8)
-        subclass = error_msg.subtypes.get(subtype)
-        if subclass:
+        if subclass := error_msg.subtypes.get(subtype):
             return subclass.unpack(reader)
 
         obj = error_msg()
@@ -526,9 +447,7 @@ class error_msg(message):
 
     def __eq__(self, other):
         if type(self) != type(other): return False
-        if self.xid != other.xid: return False
-        if self.err_type != other.err_type: return False
-        return True
+        return False if self.xid != other.xid else self.err_type == other.err_type
 
     def pretty_print(self, q):
         q.text("error_msg {")
@@ -551,30 +470,20 @@ class bad_action_error_msg(error_msg):
     err_type = 2
 
     def __init__(self, xid=None, code=None, data=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
-        if code != None:
-            self.code = code
-        else:
-            self.code = 0
-        if data != None:
-            self.data = data
-        else:
-            self.data = ''
+        self.xid = xid if xid != None else None
+        self.code = code if code != None else 0
+        self.data = data if data != None else ''
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!H", self.err_type))
         packed.append(struct.pack("!H", self.code))
         packed.append(self.data)
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -598,9 +507,7 @@ class bad_action_error_msg(error_msg):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
-        if self.code != other.code: return False
-        if self.data != other.data: return False
-        return True
+        return False if self.code != other.code else self.data == other.data
 
     def pretty_print(self, q):
         q.text("bad_action_error_msg {")
@@ -608,18 +515,20 @@ class bad_action_error_msg(error_msg):
             with q.indent(2):
                 q.breakable()
                 q.text("xid = ");
-                if self.xid != None:
-                    q.text("%#x" % self.xid)
-                else:
+                if self.xid is None:
                     q.text('None')
-                q.text(","); q.breakable()
+                else:
+                    q.text("%#x" % self.xid)
+                q.text(",")
+                q.breakable()
                 q.text("code = ");
                 value_name_map = {0: 'OFPBAC_BAD_TYPE', 1: 'OFPBAC_BAD_LEN', 2: 'OFPBAC_BAD_EXPERIMENTER', 3: 'OFPBAC_BAD_EXPERIMENTER_TYPE', 4: 'OFPBAC_BAD_OUT_PORT', 5: 'OFPBAC_BAD_ARGUMENT', 6: 'OFPBAC_EPERM', 7: 'OFPBAC_TOO_MANY', 8: 'OFPBAC_BAD_QUEUE', 9: 'OFPBAC_BAD_OUT_GROUP', 10: 'OFPBAC_MATCH_INCONSISTENT', 11: 'OFPBAC_UNSUPPORTED_ORDER', 12: 'OFPBAC_BAD_TAG'}
                 if self.code in value_name_map:
                     q.text("%s(%d)" % (value_name_map[self.code], self.code))
                 else:
                     q.text("%#x" % self.code)
-                q.text(","); q.breakable()
+                q.text(",")
+                q.breakable()
                 q.text("data = ");
                 q.pp(self.data)
             q.breakable()
@@ -633,30 +542,20 @@ class bad_instruction_error_msg(error_msg):
     err_type = 3
 
     def __init__(self, xid=None, code=None, data=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
-        if code != None:
-            self.code = code
-        else:
-            self.code = 0
-        if data != None:
-            self.data = data
-        else:
-            self.data = ''
+        self.xid = xid if xid != None else None
+        self.code = code if code != None else 0
+        self.data = data if data != None else ''
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!H", self.err_type))
         packed.append(struct.pack("!H", self.code))
         packed.append(self.data)
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -680,9 +579,7 @@ class bad_instruction_error_msg(error_msg):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
-        if self.code != other.code: return False
-        if self.data != other.data: return False
-        return True
+        return False if self.code != other.code else self.data == other.data
 
     def pretty_print(self, q):
         q.text("bad_instruction_error_msg {")
@@ -690,18 +587,20 @@ class bad_instruction_error_msg(error_msg):
             with q.indent(2):
                 q.breakable()
                 q.text("xid = ");
-                if self.xid != None:
-                    q.text("%#x" % self.xid)
-                else:
+                if self.xid is None:
                     q.text('None')
-                q.text(","); q.breakable()
+                else:
+                    q.text("%#x" % self.xid)
+                q.text(",")
+                q.breakable()
                 q.text("code = ");
                 value_name_map = {0: 'OFPBIC_UNKNOWN_INST', 1: 'OFPBIC_UNSUP_INST', 2: 'OFPBIC_BAD_TABLE_ID', 3: 'OFPBIC_UNSUP_METADATA', 4: 'OFPBIC_UNSUP_METADATA_MASK', 5: 'OFPBIC_UNSUP_EXP_INST'}
                 if self.code in value_name_map:
                     q.text("%s(%d)" % (value_name_map[self.code], self.code))
                 else:
                     q.text("%#x" % self.code)
-                q.text(","); q.breakable()
+                q.text(",")
+                q.breakable()
                 q.text("data = ");
                 q.pp(self.data)
             q.breakable()
@@ -715,30 +614,20 @@ class bad_match_error_msg(error_msg):
     err_type = 4
 
     def __init__(self, xid=None, code=None, data=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
-        if code != None:
-            self.code = code
-        else:
-            self.code = 0
-        if data != None:
-            self.data = data
-        else:
-            self.data = ''
+        self.xid = xid if xid != None else None
+        self.code = code if code != None else 0
+        self.data = data if data != None else ''
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!H", self.err_type))
         packed.append(struct.pack("!H", self.code))
         packed.append(self.data)
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -762,9 +651,7 @@ class bad_match_error_msg(error_msg):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
-        if self.code != other.code: return False
-        if self.data != other.data: return False
-        return True
+        return False if self.code != other.code else self.data == other.data
 
     def pretty_print(self, q):
         q.text("bad_match_error_msg {")
@@ -772,18 +659,20 @@ class bad_match_error_msg(error_msg):
             with q.indent(2):
                 q.breakable()
                 q.text("xid = ");
-                if self.xid != None:
-                    q.text("%#x" % self.xid)
-                else:
+                if self.xid is None:
                     q.text('None')
-                q.text(","); q.breakable()
+                else:
+                    q.text("%#x" % self.xid)
+                q.text(",")
+                q.breakable()
                 q.text("code = ");
                 value_name_map = {0: 'OFPBMC_BAD_TYPE', 1: 'OFPBMC_BAD_LEN', 2: 'OFPBMC_BAD_TAG', 3: 'OFPBMC_BAD_DL_ADDR_MASK', 4: 'OFPBMC_BAD_NW_ADDR_MASK', 5: 'OFPBMC_BAD_WILDCARDS', 6: 'OFPBMC_BAD_FIELD', 7: 'OFPBMC_BAD_VALUE'}
                 if self.code in value_name_map:
                     q.text("%s(%d)" % (value_name_map[self.code], self.code))
                 else:
                     q.text("%#x" % self.code)
-                q.text(","); q.breakable()
+                q.text(",")
+                q.breakable()
                 q.text("data = ");
                 q.pp(self.data)
             q.breakable()
@@ -797,30 +686,20 @@ class bad_request_error_msg(error_msg):
     err_type = 1
 
     def __init__(self, xid=None, code=None, data=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
-        if code != None:
-            self.code = code
-        else:
-            self.code = 0
-        if data != None:
-            self.data = data
-        else:
-            self.data = ''
+        self.xid = xid if xid != None else None
+        self.code = code if code != None else 0
+        self.data = data if data != None else ''
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!H", self.err_type))
         packed.append(struct.pack("!H", self.code))
         packed.append(self.data)
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -844,9 +723,7 @@ class bad_request_error_msg(error_msg):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
-        if self.code != other.code: return False
-        if self.data != other.data: return False
-        return True
+        return False if self.code != other.code else self.data == other.data
 
     def pretty_print(self, q):
         q.text("bad_request_error_msg {")
@@ -854,18 +731,20 @@ class bad_request_error_msg(error_msg):
             with q.indent(2):
                 q.breakable()
                 q.text("xid = ");
-                if self.xid != None:
-                    q.text("%#x" % self.xid)
-                else:
+                if self.xid is None:
                     q.text('None')
-                q.text(","); q.breakable()
+                else:
+                    q.text("%#x" % self.xid)
+                q.text(",")
+                q.breakable()
                 q.text("code = ");
                 value_name_map = {0: 'OFPBRC_BAD_VERSION', 1: 'OFPBRC_BAD_TYPE', 2: 'OFPBRC_BAD_STAT', 3: 'OFPBRC_BAD_EXPERIMENTER', 4: 'OFPBRC_BAD_SUBTYPE', 5: 'OFPBRC_EPERM', 6: 'OFPBRC_BAD_LEN', 7: 'OFPBRC_BUFFER_EMPTY', 8: 'OFPBRC_BUFFER_UNKNOWN', 9: 'OFPBRC_BAD_TABLE_ID'}
                 if self.code in value_name_map:
                     q.text("%s(%d)" % (value_name_map[self.code], self.code))
                 else:
                     q.text("%#x" % self.code)
-                q.text(","); q.breakable()
+                q.text(",")
+                q.breakable()
                 q.text("data = ");
                 q.pp(self.data)
             q.breakable()
@@ -878,19 +757,15 @@ class barrier_reply(message):
     type = 21
 
     def __init__(self, xid=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
+        self.xid = xid if xid != None else None
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -908,9 +783,7 @@ class barrier_reply(message):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.xid != other.xid: return False
-        return True
+        return False if type(self) != type(other) else self.xid == other.xid
 
     def pretty_print(self, q):
         q.text("barrier_reply {")
@@ -932,19 +805,15 @@ class barrier_request(message):
     type = 20
 
     def __init__(self, xid=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
+        self.xid = xid if xid != None else None
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -962,9 +831,7 @@ class barrier_request(message):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.xid != other.xid: return False
-        return True
+        return False if type(self) != type(other) else self.xid == other.xid
 
     def pretty_print(self, q):
         q.text("barrier_request {")
@@ -988,37 +855,26 @@ class experimenter(message):
     type = 4
 
     def __init__(self, xid=None, experimenter=None, data=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
-        if experimenter != None:
-            self.experimenter = experimenter
-        else:
-            self.experimenter = 0
-        if data != None:
-            self.data = data
-        else:
-            self.data = ''
+        self.xid = xid if xid != None else None
+        self.experimenter = experimenter if experimenter != None else 0
+        self.data = data if data != None else ''
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!L", self.experimenter))
         packed.append(self.data)
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
     @staticmethod
     def unpack(reader):
         subtype, = reader.peek('!L', 8)
-        subclass = experimenter.subtypes.get(subtype)
-        if subclass:
+        if subclass := experimenter.subtypes.get(subtype):
             return subclass.unpack(reader)
 
         obj = experimenter()
@@ -1038,8 +894,7 @@ class experimenter(message):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
         if self.experimenter != other.experimenter: return False
-        if self.data != other.data: return False
-        return True
+        return self.data == other.data
 
     def pretty_print(self, q):
         q.text("experimenter {")
@@ -1047,11 +902,12 @@ class experimenter(message):
             with q.indent(2):
                 q.breakable()
                 q.text("xid = ");
-                if self.xid != None:
-                    q.text("%#x" % self.xid)
-                else:
+                if self.xid is None:
                     q.text('None')
-                q.text(","); q.breakable()
+                else:
+                    q.text("%#x" % self.xid)
+                q.text(",")
+                q.breakable()
                 q.text("data = ");
                 q.pp(self.data)
             q.breakable()
@@ -1067,33 +923,25 @@ class bsn_header(experimenter):
     experimenter = 6035143
 
     def __init__(self, xid=None, subtype=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
-        if subtype != None:
-            self.subtype = subtype
-        else:
-            self.subtype = 0
+        self.xid = xid if xid != None else None
+        self.subtype = subtype if subtype != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!L", self.experimenter))
         packed.append(struct.pack("!L", self.subtype))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
     @staticmethod
     def unpack(reader):
         subtype, = reader.peek('!L', 12)
-        subclass = bsn_header.subtypes.get(subtype)
-        if subclass:
+        if subclass := bsn_header.subtypes.get(subtype):
             return subclass.unpack(reader)
 
         obj = bsn_header()
@@ -1112,9 +960,7 @@ class bsn_header(experimenter):
 
     def __eq__(self, other):
         if type(self) != type(other): return False
-        if self.xid != other.xid: return False
-        if self.subtype != other.subtype: return False
-        return True
+        return False if self.xid != other.xid else self.subtype == other.subtype
 
     def pretty_print(self, q):
         q.text("bsn_header {")
@@ -1138,26 +984,19 @@ class bsn_bw_clear_data_reply(bsn_header):
     subtype = 22
 
     def __init__(self, xid=None, status=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
-        if status != None:
-            self.status = status
-        else:
-            self.status = 0
+        self.xid = xid if xid != None else None
+        self.status = status if status != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!L", self.experimenter))
         packed.append(struct.pack("!L", self.subtype))
         packed.append(struct.pack("!L", self.status))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1181,9 +1020,7 @@ class bsn_bw_clear_data_reply(bsn_header):
 
     def __eq__(self, other):
         if type(self) != type(other): return False
-        if self.xid != other.xid: return False
-        if self.status != other.status: return False
-        return True
+        return False if self.xid != other.xid else self.status == other.status
 
     def pretty_print(self, q):
         q.text("bsn_bw_clear_data_reply {")
@@ -1191,11 +1028,12 @@ class bsn_bw_clear_data_reply(bsn_header):
             with q.indent(2):
                 q.breakable()
                 q.text("xid = ");
-                if self.xid != None:
-                    q.text("%#x" % self.xid)
-                else:
+                if self.xid is None:
                     q.text('None')
-                q.text(","); q.breakable()
+                else:
+                    q.text("%#x" % self.xid)
+                q.text(",")
+                q.breakable()
                 q.text("status = ");
                 q.text("%#x" % self.status)
             q.breakable()
@@ -1210,21 +1048,17 @@ class bsn_bw_clear_data_request(bsn_header):
     subtype = 21
 
     def __init__(self, xid=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
+        self.xid = xid if xid != None else None
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!L", self.experimenter))
         packed.append(struct.pack("!L", self.subtype))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1246,9 +1080,7 @@ class bsn_bw_clear_data_request(bsn_header):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.xid != other.xid: return False
-        return True
+        return False if type(self) != type(other) else self.xid == other.xid
 
     def pretty_print(self, q):
         q.text("bsn_bw_clear_data_request {")
@@ -1272,26 +1104,19 @@ class bsn_bw_enable_get_reply(bsn_header):
     subtype = 20
 
     def __init__(self, xid=None, enabled=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
-        if enabled != None:
-            self.enabled = enabled
-        else:
-            self.enabled = 0
+        self.xid = xid if xid != None else None
+        self.enabled = enabled if enabled != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!L", self.experimenter))
         packed.append(struct.pack("!L", self.subtype))
         packed.append(struct.pack("!L", self.enabled))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1315,9 +1140,7 @@ class bsn_bw_enable_get_reply(bsn_header):
 
     def __eq__(self, other):
         if type(self) != type(other): return False
-        if self.xid != other.xid: return False
-        if self.enabled != other.enabled: return False
-        return True
+        return False if self.xid != other.xid else self.enabled == other.enabled
 
     def pretty_print(self, q):
         q.text("bsn_bw_enable_get_reply {")
@@ -1325,11 +1148,12 @@ class bsn_bw_enable_get_reply(bsn_header):
             with q.indent(2):
                 q.breakable()
                 q.text("xid = ");
-                if self.xid != None:
-                    q.text("%#x" % self.xid)
-                else:
+                if self.xid is None:
                     q.text('None')
-                q.text(","); q.breakable()
+                else:
+                    q.text("%#x" % self.xid)
+                q.text(",")
+                q.breakable()
                 q.text("enabled = ");
                 q.text("%#x" % self.enabled)
             q.breakable()
@@ -1344,21 +1168,17 @@ class bsn_bw_enable_get_request(bsn_header):
     subtype = 19
 
     def __init__(self, xid=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
+        self.xid = xid if xid != None else None
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!L", self.experimenter))
         packed.append(struct.pack("!L", self.subtype))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1380,9 +1200,7 @@ class bsn_bw_enable_get_request(bsn_header):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.xid != other.xid: return False
-        return True
+        return False if type(self) != type(other) else self.xid == other.xid
 
     def pretty_print(self, q):
         q.text("bsn_bw_enable_get_request {")
@@ -1406,23 +1224,13 @@ class bsn_bw_enable_set_reply(bsn_header):
     subtype = 23
 
     def __init__(self, xid=None, enable=None, status=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
-        if enable != None:
-            self.enable = enable
-        else:
-            self.enable = 0
-        if status != None:
-            self.status = status
-        else:
-            self.status = 0
+        self.xid = xid if xid != None else None
+        self.enable = enable if enable != None else 0
+        self.status = status if status != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
@@ -1430,7 +1238,7 @@ class bsn_bw_enable_set_reply(bsn_header):
         packed.append(struct.pack("!L", self.subtype))
         packed.append(struct.pack("!L", self.enable))
         packed.append(struct.pack("!L", self.status))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1456,9 +1264,7 @@ class bsn_bw_enable_set_reply(bsn_header):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
-        if self.enable != other.enable: return False
-        if self.status != other.status: return False
-        return True
+        return False if self.enable != other.enable else self.status == other.status
 
     def pretty_print(self, q):
         q.text("bsn_bw_enable_set_reply {")
@@ -1466,14 +1272,16 @@ class bsn_bw_enable_set_reply(bsn_header):
             with q.indent(2):
                 q.breakable()
                 q.text("xid = ");
-                if self.xid != None:
-                    q.text("%#x" % self.xid)
-                else:
+                if self.xid is None:
                     q.text('None')
-                q.text(","); q.breakable()
+                else:
+                    q.text("%#x" % self.xid)
+                q.text(",")
+                q.breakable()
                 q.text("enable = ");
                 q.text("%#x" % self.enable)
-                q.text(","); q.breakable()
+                q.text(",")
+                q.breakable()
                 q.text("status = ");
                 q.text("%#x" % self.status)
             q.breakable()
@@ -1488,26 +1296,19 @@ class bsn_bw_enable_set_request(bsn_header):
     subtype = 18
 
     def __init__(self, xid=None, enable=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
-        if enable != None:
-            self.enable = enable
-        else:
-            self.enable = 0
+        self.xid = xid if xid != None else None
+        self.enable = enable if enable != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!L", self.experimenter))
         packed.append(struct.pack("!L", self.subtype))
         packed.append(struct.pack("!L", self.enable))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1531,9 +1332,7 @@ class bsn_bw_enable_set_request(bsn_header):
 
     def __eq__(self, other):
         if type(self) != type(other): return False
-        if self.xid != other.xid: return False
-        if self.enable != other.enable: return False
-        return True
+        return False if self.xid != other.xid else self.enable == other.enable
 
     def pretty_print(self, q):
         q.text("bsn_bw_enable_set_request {")
@@ -1541,11 +1340,12 @@ class bsn_bw_enable_set_request(bsn_header):
             with q.indent(2):
                 q.breakable()
                 q.text("xid = ");
-                if self.xid != None:
-                    q.text("%#x" % self.xid)
-                else:
+                if self.xid is None:
                     q.text('None')
-                q.text(","); q.breakable()
+                else:
+                    q.text("%#x" % self.xid)
+                q.text(",")
+                q.breakable()
                 q.text("enable = ");
                 q.text("%#x" % self.enable)
             q.breakable()
@@ -1560,26 +1360,19 @@ class bsn_get_interfaces_reply(bsn_header):
     subtype = 10
 
     def __init__(self, xid=None, interfaces=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
-        if interfaces != None:
-            self.interfaces = interfaces
-        else:
-            self.interfaces = []
+        self.xid = xid if xid != None else None
+        self.interfaces = interfaces if interfaces != None else []
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!L", self.experimenter))
         packed.append(struct.pack("!L", self.subtype))
         packed.append(loxi.generic_util.pack_list(self.interfaces))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1603,9 +1396,7 @@ class bsn_get_interfaces_reply(bsn_header):
 
     def __eq__(self, other):
         if type(self) != type(other): return False
-        if self.xid != other.xid: return False
-        if self.interfaces != other.interfaces: return False
-        return True
+        return False if self.xid != other.xid else self.interfaces == other.interfaces
 
     def pretty_print(self, q):
         q.text("bsn_get_interfaces_reply {")
@@ -1613,11 +1404,12 @@ class bsn_get_interfaces_reply(bsn_header):
             with q.indent(2):
                 q.breakable()
                 q.text("xid = ");
-                if self.xid != None:
-                    q.text("%#x" % self.xid)
-                else:
+                if self.xid is None:
                     q.text('None')
-                q.text(","); q.breakable()
+                else:
+                    q.text("%#x" % self.xid)
+                q.text(",")
+                q.breakable()
                 q.text("interfaces = ");
                 q.pp(self.interfaces)
             q.breakable()
@@ -1632,21 +1424,17 @@ class bsn_get_interfaces_request(bsn_header):
     subtype = 9
 
     def __init__(self, xid=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
+        self.xid = xid if xid != None else None
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!L", self.experimenter))
         packed.append(struct.pack("!L", self.subtype))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1668,9 +1456,7 @@ class bsn_get_interfaces_request(bsn_header):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.xid != other.xid: return False
-        return True
+        return False if type(self) != type(other) else self.xid == other.xid
 
     def pretty_print(self, q):
         q.text("bsn_get_interfaces_request {")
@@ -1694,10 +1480,7 @@ class bsn_get_mirroring_reply(bsn_header):
     subtype = 5
 
     def __init__(self, xid=None, report_mirror_ports=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
+        self.xid = xid if xid != None else None
         if report_mirror_ports != None:
             self.report_mirror_ports = report_mirror_ports
         else:
@@ -1705,16 +1488,14 @@ class bsn_get_mirroring_reply(bsn_header):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!L", self.experimenter))
         packed.append(struct.pack("!L", self.subtype))
-        packed.append(struct.pack("!B", self.report_mirror_ports))
-        packed.append('\x00' * 3)
-        length = sum([len(x) for x in packed])
+        packed.extend((struct.pack("!B", self.report_mirror_ports), '\x00' * 3))
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1740,8 +1521,7 @@ class bsn_get_mirroring_reply(bsn_header):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
-        if self.report_mirror_ports != other.report_mirror_ports: return False
-        return True
+        return self.report_mirror_ports == other.report_mirror_ports
 
     def pretty_print(self, q):
         q.text("bsn_get_mirroring_reply {")
@@ -1749,11 +1529,12 @@ class bsn_get_mirroring_reply(bsn_header):
             with q.indent(2):
                 q.breakable()
                 q.text("xid = ");
-                if self.xid != None:
-                    q.text("%#x" % self.xid)
-                else:
+                if self.xid is None:
                     q.text('None')
-                q.text(","); q.breakable()
+                else:
+                    q.text("%#x" % self.xid)
+                q.text(",")
+                q.breakable()
                 q.text("report_mirror_ports = ");
                 q.text("%#x" % self.report_mirror_ports)
             q.breakable()
@@ -1768,10 +1549,7 @@ class bsn_get_mirroring_request(bsn_header):
     subtype = 4
 
     def __init__(self, xid=None, report_mirror_ports=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
+        self.xid = xid if xid != None else None
         if report_mirror_ports != None:
             self.report_mirror_ports = report_mirror_ports
         else:
@@ -1779,16 +1557,14 @@ class bsn_get_mirroring_request(bsn_header):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!L", self.experimenter))
         packed.append(struct.pack("!L", self.subtype))
-        packed.append(struct.pack("!B", self.report_mirror_ports))
-        packed.append('\x00' * 3)
-        length = sum([len(x) for x in packed])
+        packed.extend((struct.pack("!B", self.report_mirror_ports), '\x00' * 3))
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1814,8 +1590,7 @@ class bsn_get_mirroring_request(bsn_header):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
-        if self.report_mirror_ports != other.report_mirror_ports: return False
-        return True
+        return self.report_mirror_ports == other.report_mirror_ports
 
     def pretty_print(self, q):
         q.text("bsn_get_mirroring_request {")
@@ -1823,11 +1598,12 @@ class bsn_get_mirroring_request(bsn_header):
             with q.indent(2):
                 q.breakable()
                 q.text("xid = ");
-                if self.xid != None:
-                    q.text("%#x" % self.xid)
-                else:
+                if self.xid is None:
                     q.text('None')
-                q.text(","); q.breakable()
+                else:
+                    q.text("%#x" % self.xid)
+                q.text(",")
+                q.breakable()
                 q.text("report_mirror_ports = ");
                 q.text("%#x" % self.report_mirror_ports)
             q.breakable()
@@ -1842,27 +1618,14 @@ class bsn_pdu_rx_reply(bsn_header):
     subtype = 34
 
     def __init__(self, xid=None, status=None, port_no=None, slot_num=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
-        if status != None:
-            self.status = status
-        else:
-            self.status = 0
-        if port_no != None:
-            self.port_no = port_no
-        else:
-            self.port_no = 0
-        if slot_num != None:
-            self.slot_num = slot_num
-        else:
-            self.slot_num = 0
+        self.xid = xid if xid != None else None
+        self.status = status if status != None else 0
+        self.port_no = port_no if port_no != None else 0
+        self.slot_num = slot_num if slot_num != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
@@ -1871,7 +1634,7 @@ class bsn_pdu_rx_reply(bsn_header):
         packed.append(struct.pack("!L", self.status))
         packed.append(util.pack_port_no(self.port_no))
         packed.append(struct.pack("!B", self.slot_num))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1900,8 +1663,7 @@ class bsn_pdu_rx_reply(bsn_header):
         if self.xid != other.xid: return False
         if self.status != other.status: return False
         if self.port_no != other.port_no: return False
-        if self.slot_num != other.slot_num: return False
-        return True
+        return self.slot_num == other.slot_num
 
     def pretty_print(self, q):
         q.text("bsn_pdu_rx_reply {")
@@ -1909,17 +1671,20 @@ class bsn_pdu_rx_reply(bsn_header):
             with q.indent(2):
                 q.breakable()
                 q.text("xid = ");
-                if self.xid != None:
-                    q.text("%#x" % self.xid)
-                else:
+                if self.xid is None:
                     q.text('None')
-                q.text(","); q.breakable()
+                else:
+                    q.text("%#x" % self.xid)
+                q.text(",")
+                q.breakable()
                 q.text("status = ");
                 q.text("%#x" % self.status)
-                q.text(","); q.breakable()
+                q.text(",")
+                q.breakable()
                 q.text("port_no = ");
                 q.text(util.pretty_port(self.port_no))
-                q.text(","); q.breakable()
+                q.text(",")
+                q.breakable()
                 q.text("slot_num = ");
                 q.text("%#x" % self.slot_num)
             q.breakable()
@@ -1934,31 +1699,15 @@ class bsn_pdu_rx_request(bsn_header):
     subtype = 33
 
     def __init__(self, xid=None, timeout_ms=None, port_no=None, slot_num=None, data=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
-        if timeout_ms != None:
-            self.timeout_ms = timeout_ms
-        else:
-            self.timeout_ms = 0
-        if port_no != None:
-            self.port_no = port_no
-        else:
-            self.port_no = 0
-        if slot_num != None:
-            self.slot_num = slot_num
-        else:
-            self.slot_num = 0
-        if data != None:
-            self.data = data
-        else:
-            self.data = ''
+        self.xid = xid if xid != None else None
+        self.timeout_ms = timeout_ms if timeout_ms != None else 0
+        self.port_no = port_no if port_no != None else 0
+        self.slot_num = slot_num if slot_num != None else 0
+        self.data = data if data != None else ''
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
@@ -1966,10 +1715,9 @@ class bsn_pdu_rx_request(bsn_header):
         packed.append(struct.pack("!L", self.subtype))
         packed.append(struct.pack("!L", self.timeout_ms))
         packed.append(util.pack_port_no(self.port_no))
-        packed.append(struct.pack("!B", self.slot_num))
-        packed.append('\x00' * 3)
+        packed.extend((struct.pack("!B", self.slot_num), '\x00' * 3))
         packed.append(self.data)
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2000,9 +1748,7 @@ class bsn_pdu_rx_request(bsn_header):
         if self.xid != other.xid: return False
         if self.timeout_ms != other.timeout_ms: return False
         if self.port_no != other.port_no: return False
-        if self.slot_num != other.slot_num: return False
-        if self.data != other.data: return False
-        return True
+        return False if self.slot_num != other.slot_num else self.data == other.data
 
     def pretty_print(self, q):
         q.text("bsn_pdu_rx_request {")
@@ -2010,20 +1756,24 @@ class bsn_pdu_rx_request(bsn_header):
             with q.indent(2):
                 q.breakable()
                 q.text("xid = ");
-                if self.xid != None:
-                    q.text("%#x" % self.xid)
-                else:
+                if self.xid is None:
                     q.text('None')
-                q.text(","); q.breakable()
+                else:
+                    q.text("%#x" % self.xid)
+                q.text(",")
+                q.breakable()
                 q.text("timeout_ms = ");
                 q.text("%#x" % self.timeout_ms)
-                q.text(","); q.breakable()
+                q.text(",")
+                q.breakable()
                 q.text("port_no = ");
                 q.text(util.pretty_port(self.port_no))
-                q.text(","); q.breakable()
+                q.text(",")
+                q.breakable()
                 q.text("slot_num = ");
                 q.text("%#x" % self.slot_num)
-                q.text(","); q.breakable()
+                q.text(",")
+                q.breakable()
                 q.text("data = ");
                 q.pp(self.data)
             q.breakable()
@@ -2038,23 +1788,13 @@ class bsn_pdu_rx_timeout(bsn_header):
     subtype = 35
 
     def __init__(self, xid=None, port_no=None, slot_num=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
-        if port_no != None:
-            self.port_no = port_no
-        else:
-            self.port_no = 0
-        if slot_num != None:
-            self.slot_num = slot_num
-        else:
-            self.slot_num = 0
+        self.xid = xid if xid != None else None
+        self.port_no = port_no if port_no != None else 0
+        self.slot_num = slot_num if slot_num != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
@@ -2062,7 +1802,7 @@ class bsn_pdu_rx_timeout(bsn_header):
         packed.append(struct.pack("!L", self.subtype))
         packed.append(util.pack_port_no(self.port_no))
         packed.append(struct.pack("!B", self.slot_num))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2089,8 +1829,7 @@ class bsn_pdu_rx_timeout(bsn_header):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
         if self.port_no != other.port_no: return False
-        if self.slot_num != other.slot_num: return False
-        return True
+        return self.slot_num == other.slot_num
 
     def pretty_print(self, q):
         q.text("bsn_pdu_rx_timeout {")
@@ -2098,14 +1837,16 @@ class bsn_pdu_rx_timeout(bsn_header):
             with q.indent(2):
                 q.breakable()
                 q.text("xid = ");
-                if self.xid != None:
-                    q.text("%#x" % self.xid)
-                else:
+                if self.xid is None:
                     q.text('None')
-                q.text(","); q.breakable()
+                else:
+                    q.text("%#x" % self.xid)
+                q.text(",")
+                q.breakable()
                 q.text("port_no = ");
                 q.text(util.pretty_port(self.port_no))
-                q.text(","); q.breakable()
+                q.text(",")
+                q.breakable()
                 q.text("slot_num = ");
                 q.text("%#x" % self.slot_num)
             q.breakable()
@@ -2120,27 +1861,14 @@ class bsn_pdu_tx_reply(bsn_header):
     subtype = 32
 
     def __init__(self, xid=None, status=None, port_no=None, slot_num=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
-        if status != None:
-            self.status = status
-        else:
-            self.status = 0
-        if port_no != None:
-            self.port_no = port_no
-        else:
-            self.port_no = 0
-        if slot_num != None:
-            self.slot_num = slot_num
-        else:
-            self.slot_num = 0
+        self.xid = xid if xid != None else None
+        self.status = status if status != None else 0
+        self.port_no = port_no if port_no != None else 0
+        self.slot_num = slot_num if slot_num != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
@@ -2149,7 +1877,7 @@ class bsn_pdu_tx_reply(bsn_header):
         packed.append(struct.pack("!L", self.status))
         packed.append(util.pack_port_no(self.port_no))
         packed.append(struct.pack("!B", self.slot_num))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2178,8 +1906,7 @@ class bsn_pdu_tx_reply(bsn_header):
         if self.xid != other.xid: return False
         if self.status != other.status: return False
         if self.port_no != other.port_no: return False
-        if self.slot_num != other.slot_num: return False
-        return True
+        return self.slot_num == other.slot_num
 
     def pretty_print(self, q):
         q.text("bsn_pdu_tx_reply {")
@@ -2187,17 +1914,20 @@ class bsn_pdu_tx_reply(bsn_header):
             with q.indent(2):
                 q.breakable()
                 q.text("xid = ");
-                if self.xid != None:
-                    q.text("%#x" % self.xid)
-                else:
+                if self.xid is None:
                     q.text('None')
-                q.text(","); q.breakable()
+                else:
+                    q.text("%#x" % self.xid)
+                q.text(",")
+                q.breakable()
                 q.text("status = ");
                 q.text("%#x" % self.status)
-                q.text(","); q.breakable()
+                q.text(",")
+                q.breakable()
                 q.text("port_no = ");
                 q.text(util.pretty_port(self.port_no))
-                q.text(","); q.breakable()
+                q.text(",")
+                q.breakable()
                 q.text("slot_num = ");
                 q.text("%#x" % self.slot_num)
             q.breakable()
@@ -2212,31 +1942,15 @@ class bsn_pdu_tx_request(bsn_header):
     subtype = 31
 
     def __init__(self, xid=None, tx_interval_ms=None, port_no=None, slot_num=None, data=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
-        if tx_interval_ms != None:
-            self.tx_interval_ms = tx_interval_ms
-        else:
-            self.tx_interval_ms = 0
-        if port_no != None:
-            self.port_no = port_no
-        else:
-            self.port_no = 0
-        if slot_num != None:
-            self.slot_num = slot_num
-        else:
-            self.slot_num = 0
-        if data != None:
-            self.data = data
-        else:
-            self.data = ''
+        self.xid = xid if xid != None else None
+        self.tx_interval_ms = tx_interval_ms if tx_interval_ms != None else 0
+        self.port_no = port_no if port_no != None else 0
+        self.slot_num = slot_num if slot_num != None else 0
+        self.data = data if data != None else ''
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
@@ -2244,10 +1958,9 @@ class bsn_pdu_tx_request(bsn_header):
         packed.append(struct.pack("!L", self.subtype))
         packed.append(struct.pack("!L", self.tx_interval_ms))
         packed.append(util.pack_port_no(self.port_no))
-        packed.append(struct.pack("!B", self.slot_num))
-        packed.append('\x00' * 3)
+        packed.extend((struct.pack("!B", self.slot_num), '\x00' * 3))
         packed.append(self.data)
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2278,9 +1991,7 @@ class bsn_pdu_tx_request(bsn_header):
         if self.xid != other.xid: return False
         if self.tx_interval_ms != other.tx_interval_ms: return False
         if self.port_no != other.port_no: return False
-        if self.slot_num != other.slot_num: return False
-        if self.data != other.data: return False
-        return True
+        return False if self.slot_num != other.slot_num else self.data == other.data
 
     def pretty_print(self, q):
         q.text("bsn_pdu_tx_request {")
@@ -2288,20 +1999,24 @@ class bsn_pdu_tx_request(bsn_header):
             with q.indent(2):
                 q.breakable()
                 q.text("xid = ");
-                if self.xid != None:
-                    q.text("%#x" % self.xid)
-                else:
+                if self.xid is None:
                     q.text('None')
-                q.text(","); q.breakable()
+                else:
+                    q.text("%#x" % self.xid)
+                q.text(",")
+                q.breakable()
                 q.text("tx_interval_ms = ");
                 q.text("%#x" % self.tx_interval_ms)
-                q.text(","); q.breakable()
+                q.text(",")
+                q.breakable()
                 q.text("port_no = ");
                 q.text(util.pretty_port(self.port_no))
-                q.text(","); q.breakable()
+                q.text(",")
+                q.breakable()
                 q.text("slot_num = ");
                 q.text("%#x" % self.slot_num)
-                q.text(","); q.breakable()
+                q.text(",")
+                q.breakable()
                 q.text("data = ");
                 q.pp(self.data)
             q.breakable()
@@ -2316,10 +2031,7 @@ class bsn_set_mirroring(bsn_header):
     subtype = 3
 
     def __init__(self, xid=None, report_mirror_ports=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
+        self.xid = xid if xid != None else None
         if report_mirror_ports != None:
             self.report_mirror_ports = report_mirror_ports
         else:
@@ -2327,16 +2039,14 @@ class bsn_set_mirroring(bsn_header):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!L", self.experimenter))
         packed.append(struct.pack("!L", self.subtype))
-        packed.append(struct.pack("!B", self.report_mirror_ports))
-        packed.append('\x00' * 3)
-        length = sum([len(x) for x in packed])
+        packed.extend((struct.pack("!B", self.report_mirror_ports), '\x00' * 3))
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2362,8 +2072,7 @@ class bsn_set_mirroring(bsn_header):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
-        if self.report_mirror_ports != other.report_mirror_ports: return False
-        return True
+        return self.report_mirror_ports == other.report_mirror_ports
 
     def pretty_print(self, q):
         q.text("bsn_set_mirroring {")
@@ -2371,11 +2080,12 @@ class bsn_set_mirroring(bsn_header):
             with q.indent(2):
                 q.breakable()
                 q.text("xid = ");
-                if self.xid != None:
-                    q.text("%#x" % self.xid)
-                else:
+                if self.xid is None:
                     q.text('None')
-                q.text(","); q.breakable()
+                else:
+                    q.text("%#x" % self.xid)
+                q.text(",")
+                q.breakable()
                 q.text("report_mirror_ports = ");
                 q.text("%#x" % self.report_mirror_ports)
             q.breakable()
@@ -2390,26 +2100,19 @@ class bsn_set_pktin_suppression_reply(bsn_header):
     subtype = 25
 
     def __init__(self, xid=None, status=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
-        if status != None:
-            self.status = status
-        else:
-            self.status = 0
+        self.xid = xid if xid != None else None
+        self.status = status if status != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.version))
+        packed = [struct.pack("!B", self.version)]
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!L", self.experimenter))
         packed.append(struct.pack("!L", self.subtype))
         packed.append(struct.pack("!L", self.status))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2433,9 +2136,7 @@ class bsn_set_pktin_suppression_reply(bsn_header):
 
     def __eq__(self, other):
         if type(self) != type(other): return False
-        if self.xid != other.xid: return False
-        if self.status != other.status: return False
-        return True
+        return False if self.xid != other.xid else self.status == other.status
 
     def pretty_print(self, q):
         q.text("bsn_set_pktin_suppression_reply {")
@@ -2443,11 +2144,12 @@ class bsn_set_pktin_suppression_reply(bsn_header):
             with q.indent(2):
                 q.breakable()
                 q.text("xid = ");
-                if self.xid != None:
-                    q.text("%#x" % self.xid)
-                else:
+                if self.xid is None:
                     q.text('None')
-                q.text(","); q.breakable()
+                else:
+                    q.text("%#x" % self.xid)
+                q.text(",")
+                q.breakable()
                 q.text("status = ");
                 q.text("%#x" % self.status)
             q.breakable()
@@ -2462,30 +2164,12 @@ class bsn_set_pktin_suppression_request(bsn_header):
     subtype = 11
 
     def __init__(self, xid=None, enabled=None, idle_timeout=None, hard_timeout=None, priority=None, cookie=None):
-        if xid != None:
-            self.xid = xid
-        else:
-            self.xid = None
-        if enabled != None:
-            self.enabled = enabled
-        else:
-            self.enabled = 0
-        if idle_timeout != None:
-            self.idle_timeout = idle_timeout
-        else:
-            self.idle_timeout = 0
-        if hard_timeout != None:
-            self.hard_timeout = hard_timeout
-        else:
-            self.hard_timeout = 0
-        if priority != None:
-            self.priority = priority
-        else:
-            self.priority = 0
-        if cookie != None:
-            self.cookie = cookie
-        else:
-            self.cookie = 0
+        self.xid = xid if xid != None else None
+        self.enabled = enabled if enabled != None else 0
+        self.idle_timeout = idle_timeout if idle_timeout != None else 0
+        self.hard_timeout = hard_timeout if hard_timeout != None else 0
+        self.priority = priority if priority != None else 0
+        self.cookie = cookie if cookie != None else 0
         return
 
     def pack(self):

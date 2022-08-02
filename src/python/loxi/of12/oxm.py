@@ -19,22 +19,17 @@ class oxm(loxi.OFObject):
 
 
     def __init__(self, type_len=None):
-        if type_len != None:
-            self.type_len = type_len
-        else:
-            self.type_len = 0
+        self.type_len = type_len if type_len != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         return ''.join(packed)
 
     @staticmethod
     def unpack(reader):
         subtype, = reader.peek('!L', 0)
-        subclass = oxm.subtypes.get(subtype)
-        if subclass:
+        if subclass := oxm.subtypes.get(subtype):
             return subclass.unpack(reader)
 
         obj = oxm()
@@ -42,9 +37,7 @@ class oxm(loxi.OFObject):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.type_len != other.type_len: return False
-        return True
+        return False if type(self) != type(other) else self.type_len == other.type_len
 
     def pretty_print(self, q):
         q.text("oxm {")
@@ -59,15 +52,11 @@ class arp_op(oxm):
     type_len = 2147494402
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!H", self.value))
         return ''.join(packed)
 
@@ -80,9 +69,7 @@ class arp_op(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("arp_op {")
@@ -100,19 +87,12 @@ class arp_op_masked(oxm):
     type_len = 2147494660
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!H", self.value))
         packed.append(struct.pack("!H", self.value_mask))
         return ''.join(packed)
@@ -129,8 +109,7 @@ class arp_op_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("arp_op_masked {")
@@ -151,15 +130,11 @@ class arp_sha(oxm):
     type_len = 2147495942
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = [0,0,0,0,0,0]
+        self.value = value if value != None else [0,0,0,0,0,0]
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!6B", *self.value))
         return ''.join(packed)
 
@@ -172,9 +147,7 @@ class arp_sha(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("arp_sha {")
@@ -192,19 +165,12 @@ class arp_sha_masked(oxm):
     type_len = 2147496204
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = [0,0,0,0,0,0]
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = [0,0,0,0,0,0]
+        self.value = value if value != None else [0,0,0,0,0,0]
+        self.value_mask = value_mask if value_mask != None else [0,0,0,0,0,0]
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!6B", *self.value))
         packed.append(struct.pack("!6B", *self.value_mask))
         return ''.join(packed)
@@ -221,8 +187,7 @@ class arp_sha_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("arp_sha_masked {")
@@ -243,15 +208,11 @@ class arp_spa(oxm):
     type_len = 2147494916
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         return ''.join(packed)
 
@@ -264,9 +225,7 @@ class arp_spa(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("arp_spa {")
@@ -284,19 +243,12 @@ class arp_spa_masked(oxm):
     type_len = 2147495176
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         packed.append(struct.pack("!L", self.value_mask))
         return ''.join(packed)
@@ -313,8 +265,7 @@ class arp_spa_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("arp_spa_masked {")
@@ -335,15 +286,11 @@ class arp_tha(oxm):
     type_len = 2147496454
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = [0,0,0,0,0,0]
+        self.value = value if value != None else [0,0,0,0,0,0]
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!6B", *self.value))
         return ''.join(packed)
 
@@ -356,9 +303,7 @@ class arp_tha(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("arp_tha {")
@@ -376,19 +321,12 @@ class arp_tha_masked(oxm):
     type_len = 2147496716
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = [0,0,0,0,0,0]
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = [0,0,0,0,0,0]
+        self.value = value if value != None else [0,0,0,0,0,0]
+        self.value_mask = value_mask if value_mask != None else [0,0,0,0,0,0]
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!6B", *self.value))
         packed.append(struct.pack("!6B", *self.value_mask))
         return ''.join(packed)
@@ -405,8 +343,7 @@ class arp_tha_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("arp_tha_masked {")
@@ -427,15 +364,11 @@ class arp_tpa(oxm):
     type_len = 2147495428
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         return ''.join(packed)
 
@@ -448,9 +381,7 @@ class arp_tpa(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("arp_tpa {")
@@ -468,19 +399,12 @@ class arp_tpa_masked(oxm):
     type_len = 2147495688
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         packed.append(struct.pack("!L", self.value_mask))
         return ''.join(packed)
@@ -497,8 +421,7 @@ class arp_tpa_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("arp_tpa_masked {")
@@ -519,15 +442,11 @@ class bsn_egr_port_group_id(oxm):
     type_len = 200196
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         return ''.join(packed)
 
@@ -540,9 +459,7 @@ class bsn_egr_port_group_id(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("bsn_egr_port_group_id {")
@@ -560,19 +477,12 @@ class bsn_egr_port_group_id_masked(oxm):
     type_len = 200456
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         packed.append(struct.pack("!L", self.value_mask))
         return ''.join(packed)
@@ -589,8 +499,7 @@ class bsn_egr_port_group_id_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("bsn_egr_port_group_id_masked {")
@@ -611,15 +520,11 @@ class bsn_global_vrf_allowed(oxm):
     type_len = 198145
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!B", self.value))
         return ''.join(packed)
 
@@ -632,9 +537,7 @@ class bsn_global_vrf_allowed(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("bsn_global_vrf_allowed {")
@@ -652,19 +555,12 @@ class bsn_global_vrf_allowed_masked(oxm):
     type_len = 198402
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!B", self.value))
         packed.append(struct.pack("!B", self.value_mask))
         return ''.join(packed)
@@ -681,8 +577,7 @@ class bsn_global_vrf_allowed_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("bsn_global_vrf_allowed_masked {")
@@ -703,15 +598,11 @@ class bsn_in_ports_128(oxm):
     type_len = 196624
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = set()
+        self.value = value if value != None else set()
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(util.pack_bitmap_128(self.value))
         return ''.join(packed)
 
@@ -724,9 +615,7 @@ class bsn_in_ports_128(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("bsn_in_ports_128 {")
@@ -744,19 +633,12 @@ class bsn_in_ports_128_masked(oxm):
     type_len = 196896
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = set()
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = set()
+        self.value = value if value != None else set()
+        self.value_mask = value_mask if value_mask != None else set()
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(util.pack_bitmap_128(self.value))
         packed.append(util.pack_bitmap_128(self.value_mask))
         return ''.join(packed)
@@ -773,8 +655,7 @@ class bsn_in_ports_128_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("bsn_in_ports_128_masked {")
@@ -795,15 +676,11 @@ class bsn_in_ports_512(oxm):
     type_len = 206400
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = set()
+        self.value = value if value != None else set()
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(util.pack_bitmap_512(self.value))
         return ''.join(packed)
 
@@ -816,9 +693,7 @@ class bsn_in_ports_512(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("bsn_in_ports_512 {")
@@ -836,19 +711,12 @@ class bsn_in_ports_512_masked(oxm):
     type_len = 206720
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = set()
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = set()
+        self.value = value if value != None else set()
+        self.value_mask = value_mask if value_mask != None else set()
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(util.pack_bitmap_512(self.value))
         packed.append(util.pack_bitmap_512(self.value_mask))
         return ''.join(packed)
@@ -865,8 +733,7 @@ class bsn_in_ports_512_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("bsn_in_ports_512_masked {")
@@ -887,15 +754,11 @@ class bsn_ingress_port_group_id(oxm):
     type_len = 206852
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         return ''.join(packed)
 
@@ -908,9 +771,7 @@ class bsn_ingress_port_group_id(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("bsn_ingress_port_group_id {")
@@ -928,19 +789,12 @@ class bsn_ingress_port_group_id_masked(oxm):
     type_len = 207112
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         packed.append(struct.pack("!L", self.value_mask))
         return ''.join(packed)
@@ -957,8 +811,7 @@ class bsn_ingress_port_group_id_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("bsn_ingress_port_group_id_masked {")
@@ -979,15 +832,11 @@ class bsn_ip_fragmentation(oxm):
     type_len = 209921
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!B", self.value))
         return ''.join(packed)
 
@@ -1000,9 +849,7 @@ class bsn_ip_fragmentation(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("bsn_ip_fragmentation {")
@@ -1020,19 +867,12 @@ class bsn_ip_fragmentation_masked(oxm):
     type_len = 210178
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!B", self.value))
         packed.append(struct.pack("!B", self.value_mask))
         return ''.join(packed)
@@ -1049,8 +889,7 @@ class bsn_ip_fragmentation_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("bsn_ip_fragmentation_masked {")
@@ -1071,15 +910,11 @@ class bsn_l2_cache_hit(oxm):
     type_len = 205825
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!B", self.value))
         return ''.join(packed)
 
@@ -1092,9 +927,7 @@ class bsn_l2_cache_hit(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("bsn_l2_cache_hit {")
@@ -1112,19 +945,12 @@ class bsn_l2_cache_hit_masked(oxm):
     type_len = 206082
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!B", self.value))
         packed.append(struct.pack("!B", self.value_mask))
         return ''.join(packed)
@@ -1141,8 +967,7 @@ class bsn_l2_cache_hit_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("bsn_l2_cache_hit_masked {")
@@ -1163,15 +988,11 @@ class bsn_l3_dst_class_id(oxm):
     type_len = 199684
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         return ''.join(packed)
 
@@ -1184,9 +1005,7 @@ class bsn_l3_dst_class_id(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("bsn_l3_dst_class_id {")
@@ -1204,19 +1023,12 @@ class bsn_l3_dst_class_id_masked(oxm):
     type_len = 199944
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         packed.append(struct.pack("!L", self.value_mask))
         return ''.join(packed)
@@ -1233,8 +1045,7 @@ class bsn_l3_dst_class_id_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("bsn_l3_dst_class_id_masked {")
@@ -1255,15 +1066,11 @@ class bsn_l3_interface_class_id(oxm):
     type_len = 198660
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         return ''.join(packed)
 
@@ -1276,9 +1083,7 @@ class bsn_l3_interface_class_id(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("bsn_l3_interface_class_id {")
@@ -1296,19 +1101,12 @@ class bsn_l3_interface_class_id_masked(oxm):
     type_len = 198920
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         packed.append(struct.pack("!L", self.value_mask))
         return ''.join(packed)
@@ -1325,8 +1123,7 @@ class bsn_l3_interface_class_id_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("bsn_l3_interface_class_id_masked {")
@@ -1347,15 +1144,11 @@ class bsn_l3_src_class_id(oxm):
     type_len = 199172
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         return ''.join(packed)
 
@@ -1368,9 +1161,7 @@ class bsn_l3_src_class_id(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("bsn_l3_src_class_id {")
@@ -1388,19 +1179,12 @@ class bsn_l3_src_class_id_masked(oxm):
     type_len = 199432
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         packed.append(struct.pack("!L", self.value_mask))
         return ''.join(packed)
@@ -1417,8 +1201,7 @@ class bsn_l3_src_class_id_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("bsn_l3_src_class_id_masked {")
@@ -1439,15 +1222,11 @@ class bsn_lag_id(oxm):
     type_len = 197124
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         return ''.join(packed)
 
@@ -1460,9 +1239,7 @@ class bsn_lag_id(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("bsn_lag_id {")
@@ -1480,19 +1257,12 @@ class bsn_lag_id_masked(oxm):
     type_len = 197384
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         packed.append(struct.pack("!L", self.value_mask))
         return ''.join(packed)
@@ -1509,8 +1279,7 @@ class bsn_lag_id_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("bsn_lag_id_masked {")
@@ -1531,15 +1300,11 @@ class bsn_tcp_flags(oxm):
     type_len = 204802
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!H", self.value))
         return ''.join(packed)
 
@@ -1552,9 +1317,7 @@ class bsn_tcp_flags(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("bsn_tcp_flags {")
@@ -1572,19 +1335,12 @@ class bsn_tcp_flags_masked(oxm):
     type_len = 205060
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!H", self.value))
         packed.append(struct.pack("!H", self.value_mask))
         return ''.join(packed)
@@ -1601,8 +1357,7 @@ class bsn_tcp_flags_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("bsn_tcp_flags_masked {")
@@ -1623,15 +1378,11 @@ class bsn_udf0(oxm):
     type_len = 200708
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         return ''.join(packed)
 
@@ -1644,9 +1395,7 @@ class bsn_udf0(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("bsn_udf0 {")
@@ -1664,19 +1413,12 @@ class bsn_udf0_masked(oxm):
     type_len = 200968
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         packed.append(struct.pack("!L", self.value_mask))
         return ''.join(packed)
@@ -1693,8 +1435,7 @@ class bsn_udf0_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("bsn_udf0_masked {")
@@ -1715,15 +1456,11 @@ class bsn_udf1(oxm):
     type_len = 201220
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         return ''.join(packed)
 
@@ -1736,9 +1473,7 @@ class bsn_udf1(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("bsn_udf1 {")
@@ -1756,19 +1491,12 @@ class bsn_udf1_masked(oxm):
     type_len = 201480
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         packed.append(struct.pack("!L", self.value_mask))
         return ''.join(packed)
@@ -1785,8 +1513,7 @@ class bsn_udf1_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("bsn_udf1_masked {")
@@ -1807,15 +1534,11 @@ class bsn_udf2(oxm):
     type_len = 201732
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         return ''.join(packed)
 
@@ -1828,9 +1551,7 @@ class bsn_udf2(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("bsn_udf2 {")
@@ -1848,19 +1569,12 @@ class bsn_udf2_masked(oxm):
     type_len = 201992
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         packed.append(struct.pack("!L", self.value_mask))
         return ''.join(packed)
@@ -1877,8 +1591,7 @@ class bsn_udf2_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("bsn_udf2_masked {")
@@ -1899,15 +1612,11 @@ class bsn_udf3(oxm):
     type_len = 202244
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         return ''.join(packed)
 
@@ -1920,9 +1629,7 @@ class bsn_udf3(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("bsn_udf3 {")
@@ -1940,19 +1647,12 @@ class bsn_udf3_masked(oxm):
     type_len = 202504
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         packed.append(struct.pack("!L", self.value_mask))
         return ''.join(packed)
@@ -1969,8 +1669,7 @@ class bsn_udf3_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("bsn_udf3_masked {")
@@ -1991,15 +1690,11 @@ class bsn_udf4(oxm):
     type_len = 202756
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         return ''.join(packed)
 
@@ -2012,9 +1707,7 @@ class bsn_udf4(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("bsn_udf4 {")
@@ -2032,19 +1725,12 @@ class bsn_udf4_masked(oxm):
     type_len = 203016
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         packed.append(struct.pack("!L", self.value_mask))
         return ''.join(packed)
@@ -2061,8 +1747,7 @@ class bsn_udf4_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("bsn_udf4_masked {")
@@ -2083,15 +1768,11 @@ class bsn_udf5(oxm):
     type_len = 203268
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         return ''.join(packed)
 
@@ -2104,9 +1785,7 @@ class bsn_udf5(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("bsn_udf5 {")
@@ -2124,19 +1803,12 @@ class bsn_udf5_masked(oxm):
     type_len = 203528
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         packed.append(struct.pack("!L", self.value_mask))
         return ''.join(packed)
@@ -2153,8 +1825,7 @@ class bsn_udf5_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("bsn_udf5_masked {")
@@ -2175,15 +1846,11 @@ class bsn_udf6(oxm):
     type_len = 203780
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         return ''.join(packed)
 
@@ -2196,9 +1863,7 @@ class bsn_udf6(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("bsn_udf6 {")
@@ -2216,19 +1881,12 @@ class bsn_udf6_masked(oxm):
     type_len = 204040
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         packed.append(struct.pack("!L", self.value_mask))
         return ''.join(packed)
@@ -2245,8 +1903,7 @@ class bsn_udf6_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("bsn_udf6_masked {")
@@ -2267,15 +1924,11 @@ class bsn_udf7(oxm):
     type_len = 204292
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         return ''.join(packed)
 
@@ -2288,9 +1941,7 @@ class bsn_udf7(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("bsn_udf7 {")
@@ -2308,19 +1959,12 @@ class bsn_udf7_masked(oxm):
     type_len = 204552
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         packed.append(struct.pack("!L", self.value_mask))
         return ''.join(packed)
@@ -2337,8 +1981,7 @@ class bsn_udf7_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("bsn_udf7_masked {")
@@ -2359,15 +2002,11 @@ class bsn_vlan_xlate_port_group_id(oxm):
     type_len = 205316
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         return ''.join(packed)
 
@@ -2380,9 +2019,7 @@ class bsn_vlan_xlate_port_group_id(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("bsn_vlan_xlate_port_group_id {")
@@ -2400,19 +2037,12 @@ class bsn_vlan_xlate_port_group_id_masked(oxm):
     type_len = 205576
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         packed.append(struct.pack("!L", self.value_mask))
         return ''.join(packed)
@@ -2429,8 +2059,7 @@ class bsn_vlan_xlate_port_group_id_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("bsn_vlan_xlate_port_group_id_masked {")
@@ -2451,15 +2080,11 @@ class bsn_vrf(oxm):
     type_len = 197636
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         return ''.join(packed)
 
@@ -2472,9 +2097,7 @@ class bsn_vrf(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("bsn_vrf {")
@@ -2492,19 +2115,12 @@ class bsn_vrf_masked(oxm):
     type_len = 197896
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         packed.append(struct.pack("!L", self.value_mask))
         return ''.join(packed)
@@ -2521,8 +2137,7 @@ class bsn_vrf_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("bsn_vrf_masked {")
@@ -2550,8 +2165,7 @@ class conn_tracking_ipv6_dst(oxm):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!16s", self.value))
         return ''.join(packed)
 
@@ -2564,9 +2178,7 @@ class conn_tracking_ipv6_dst(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("conn_tracking_ipv6_dst {")
@@ -2595,8 +2207,7 @@ class conn_tracking_ipv6_dst_masked(oxm):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!16s", self.value))
         packed.append(struct.pack("!16s", self.value_mask))
         return ''.join(packed)
@@ -2613,8 +2224,7 @@ class conn_tracking_ipv6_dst_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("conn_tracking_ipv6_dst_masked {")
@@ -2642,8 +2252,7 @@ class conn_tracking_ipv6_src(oxm):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!16s", self.value))
         return ''.join(packed)
 
@@ -2656,9 +2265,7 @@ class conn_tracking_ipv6_src(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("conn_tracking_ipv6_src {")
@@ -2687,8 +2294,7 @@ class conn_tracking_ipv6_src_masked(oxm):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!16s", self.value))
         packed.append(struct.pack("!16s", self.value_mask))
         return ''.join(packed)
@@ -2705,8 +2311,7 @@ class conn_tracking_ipv6_src_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("conn_tracking_ipv6_src_masked {")
@@ -2727,15 +2332,11 @@ class conn_tracking_label(oxm):
     type_len = 120848
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = loxi.unimplemented('init uint128_t')
+        self.value = value if value != None else loxi.unimplemented('init uint128_t')
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(loxi.unimplemented('pack uint128_t'))
         return ''.join(packed)
 
@@ -2748,9 +2349,7 @@ class conn_tracking_label(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("conn_tracking_label {")
@@ -2768,10 +2367,7 @@ class conn_tracking_label_masked(oxm):
     type_len = 121120
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = loxi.unimplemented('init uint128_t')
+        self.value = value if value != None else loxi.unimplemented('init uint128_t')
         if value_mask != None:
             self.value_mask = value_mask
         else:
@@ -2779,8 +2375,7 @@ class conn_tracking_label_masked(oxm):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(loxi.unimplemented('pack uint128_t'))
         packed.append(loxi.unimplemented('pack uint128_t'))
         return ''.join(packed)
@@ -2797,8 +2392,7 @@ class conn_tracking_label_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("conn_tracking_label_masked {")
@@ -2819,15 +2413,11 @@ class conn_tracking_mark(oxm):
     type_len = 120324
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         return ''.join(packed)
 
@@ -2840,9 +2430,7 @@ class conn_tracking_mark(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("conn_tracking_mark {")
@@ -2860,19 +2448,12 @@ class conn_tracking_mark_masked(oxm):
     type_len = 120584
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         packed.append(struct.pack("!L", self.value_mask))
         return ''.join(packed)
@@ -2889,8 +2470,7 @@ class conn_tracking_mark_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("conn_tracking_mark_masked {")
@@ -2911,15 +2491,11 @@ class conn_tracking_nw_dst(oxm):
     type_len = 127492
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         return ''.join(packed)
 
@@ -2932,9 +2508,7 @@ class conn_tracking_nw_dst(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("conn_tracking_nw_dst {")
@@ -2952,19 +2526,12 @@ class conn_tracking_nw_dst_masked(oxm):
     type_len = 127752
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         packed.append(struct.pack("!L", self.value_mask))
         return ''.join(packed)
@@ -2981,8 +2548,7 @@ class conn_tracking_nw_dst_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("conn_tracking_nw_dst_masked {")
@@ -3003,15 +2569,11 @@ class conn_tracking_nw_proto(oxm):
     type_len = 126465
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!B", self.value))
         return ''.join(packed)
 
@@ -3024,9 +2586,7 @@ class conn_tracking_nw_proto(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("conn_tracking_nw_proto {")
@@ -3044,19 +2604,12 @@ class conn_tracking_nw_proto_masked(oxm):
     type_len = 126722
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!B", self.value))
         packed.append(struct.pack("!B", self.value_mask))
         return ''.join(packed)
@@ -3073,8 +2626,7 @@ class conn_tracking_nw_proto_masked(oxm):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.value != other.value: return False
-        if self.value_mask != other.value_mask: return False
-        return True
+        return self.value_mask == other.value_mask
 
     def pretty_print(self, q):
         q.text("conn_tracking_nw_proto_masked {")
@@ -3095,15 +2647,11 @@ class conn_tracking_nw_src(oxm):
     type_len = 126980
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         return ''.join(packed)
 
@@ -3116,9 +2664,7 @@ class conn_tracking_nw_src(oxm):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("conn_tracking_nw_src {")
@@ -3136,19 +2682,12 @@ class conn_tracking_nw_src_masked(oxm):
     type_len = 127240
 
     def __init__(self, value=None, value_mask=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
-        if value_mask != None:
-            self.value_mask = value_mask
-        else:
-            self.value_mask = 0
+        self.value = value if value != None else 0
+        self.value_mask = value_mask if value_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.type_len))
+        packed = [struct.pack("!L", self.type_len)]
         packed.append(struct.pack("!L", self.value))
         packed.append(struct.pack("!L", self.value_mask))
         return ''.join(packed)

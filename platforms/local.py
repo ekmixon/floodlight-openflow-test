@@ -15,8 +15,9 @@ def platform_config_update(config):
     base_if_index = 1
     port_count = 4
 
-    port_map = {}
-    # Use every other veth interface (veth1, veth3, ...)
-    for idx in range(port_count):
-        port_map[base_of_port + idx] = "veth%d" % (base_if_index + 2 * idx)
+    port_map = {
+        base_of_port + idx: "veth%d" % (base_if_index + 2 * idx)
+        for idx in range(port_count)
+    }
+
     config['port_map'] = port_map

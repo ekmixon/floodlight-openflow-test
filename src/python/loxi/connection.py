@@ -63,11 +63,7 @@ class Connection(Thread):
             buf = recvd
 
         offset = 0
-        while offset < len(buf):
-            if offset + 8 > len(buf):
-                # Not enough data for the OpenFlow header
-                break
-
+        while offset < len(buf) and offset + 8 <= len(buf):
             # Parse the header to get type
             hdr_version, hdr_type, hdr_msglen, hdr_xid = loxi.of14.message.parse_header(buf[offset:])
 
@@ -169,9 +165,13 @@ class Connection(Thread):
         self.send(msg)
         reply = self.recv_xid(msg.xid, timeout)
         if reply is None:
-            raise TransactionError("no reply for %s" % type(msg).__name__, None)
+            raise TransactionError(f"no reply for {type(msg).__name__}", None)
         elif isinstance(reply, loxi.protocol(reply.version).message.error_msg):
-            raise TransactionError("received %s in response to %s" % (type(reply).__name__, type(msg).__name__), reply)
+            raise TransactionError(
+                f"received {type(reply).__name__} in response to {type(msg).__name__}",
+                reply,
+            )
+
         return reply
 
     def transact_multipart_generator(self, msg, timeout=DEFAULT_TIMEOUT):
@@ -183,21 +183,21 @@ class Connection(Thread):
         while not finished:
             reply = self.recv_xid(msg.xid, timeout)
             if reply is None:
-                raise TransactionError("no reply for %s" % type(msg).__name__, None)
+                raise TransactionError(f"no reply for {type(msg).__name__}", None)
             elif not isinstance(reply, loxi.protocol(reply.version).message.stats_reply):
-                raise TransactionError("received %s in response to %s" % (type(reply).__name__, type(msg).__name__), reply)
-            for entry in reply.entries:
-                yield entry
+                raise TransactionError(
+                    f"received {type(reply).__name__} in response to {type(msg).__name__}",
+                    reply,
+                )
+
+            yield from reply.entries
             finished = reply.flags & loxi.protocol(reply.version).OFPSF_REPLY_MORE == 0
 
     def transact_multipart(self, msg, timeout=DEFAULT_TIMEOUT):
         """
         Send a multipart request and return all entries from the replies
         """
-        entries = []
-        for entry in self.transact_multipart_generator(msg, timeout):
-            entries.append(entry)
-        return entries
+        return list(self.transact_multipart_generator(msg, timeout))
 
     def stop(self):
         """

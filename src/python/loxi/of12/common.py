@@ -17,28 +17,14 @@ ofp = sys.modules['loxi.of12']
 class bsn_interface(loxi.OFObject):
 
     def __init__(self, hw_addr=None, name=None, ipv4_addr=None, ipv4_netmask=None):
-        if hw_addr != None:
-            self.hw_addr = hw_addr
-        else:
-            self.hw_addr = [0,0,0,0,0,0]
-        if name != None:
-            self.name = name
-        else:
-            self.name = ""
-        if ipv4_addr != None:
-            self.ipv4_addr = ipv4_addr
-        else:
-            self.ipv4_addr = 0
-        if ipv4_netmask != None:
-            self.ipv4_netmask = ipv4_netmask
-        else:
-            self.ipv4_netmask = 0
+        self.hw_addr = hw_addr if hw_addr != None else [0,0,0,0,0,0]
+        self.name = name if name != None else ""
+        self.ipv4_addr = ipv4_addr if ipv4_addr != None else 0
+        self.ipv4_netmask = ipv4_netmask if ipv4_netmask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!6B", *self.hw_addr))
-        packed.append('\x00' * 2)
+        packed = [struct.pack("!6B", *self.hw_addr), '\x00' * 2]
         packed.append(struct.pack("!16s", self.name))
         packed.append(struct.pack("!L", self.ipv4_addr))
         packed.append(struct.pack("!L", self.ipv4_netmask))
@@ -59,8 +45,7 @@ class bsn_interface(loxi.OFObject):
         if self.hw_addr != other.hw_addr: return False
         if self.name != other.name: return False
         if self.ipv4_addr != other.ipv4_addr: return False
-        if self.ipv4_netmask != other.ipv4_netmask: return False
-        return True
+        return self.ipv4_netmask == other.ipv4_netmask
 
     def pretty_print(self, q):
         q.text("bsn_interface {")
@@ -87,25 +72,20 @@ class bsn_vport(loxi.OFObject):
 
 
     def __init__(self, type=None):
-        if type != None:
-            self.type = type
-        else:
-            self.type = 0
+        self.type = type if type != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
     @staticmethod
     def unpack(reader):
         subtype, = reader.peek('!H', 0)
-        subclass = bsn_vport.subtypes.get(subtype)
-        if subclass:
+        if subclass := bsn_vport.subtypes.get(subtype):
             return subclass.unpack(reader)
 
         obj = bsn_vport()
@@ -116,9 +96,7 @@ class bsn_vport(loxi.OFObject):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.type != other.type: return False
-        return True
+        return False if type(self) != type(other) else self.type == other.type
 
     def pretty_print(self, q):
         q.text("bsn_vport {")
@@ -133,59 +111,22 @@ class bsn_vport_l2gre(bsn_vport):
     type = 1
 
     def __init__(self, flags=None, port_no=None, loopback_port_no=None, local_mac=None, nh_mac=None, src_ip=None, dst_ip=None, dscp=None, ttl=None, vpn=None, rate_limit=None, if_name=None):
-        if flags != None:
-            self.flags = flags
-        else:
-            self.flags = 0
-        if port_no != None:
-            self.port_no = port_no
-        else:
-            self.port_no = 0
-        if loopback_port_no != None:
-            self.loopback_port_no = loopback_port_no
-        else:
-            self.loopback_port_no = 0
-        if local_mac != None:
-            self.local_mac = local_mac
-        else:
-            self.local_mac = [0,0,0,0,0,0]
-        if nh_mac != None:
-            self.nh_mac = nh_mac
-        else:
-            self.nh_mac = [0,0,0,0,0,0]
-        if src_ip != None:
-            self.src_ip = src_ip
-        else:
-            self.src_ip = 0
-        if dst_ip != None:
-            self.dst_ip = dst_ip
-        else:
-            self.dst_ip = 0
-        if dscp != None:
-            self.dscp = dscp
-        else:
-            self.dscp = 0
-        if ttl != None:
-            self.ttl = ttl
-        else:
-            self.ttl = 0
-        if vpn != None:
-            self.vpn = vpn
-        else:
-            self.vpn = 0
-        if rate_limit != None:
-            self.rate_limit = rate_limit
-        else:
-            self.rate_limit = 0
-        if if_name != None:
-            self.if_name = if_name
-        else:
-            self.if_name = ""
+        self.flags = flags if flags != None else 0
+        self.port_no = port_no if port_no != None else 0
+        self.loopback_port_no = loopback_port_no if loopback_port_no != None else 0
+        self.local_mac = local_mac if local_mac != None else [0,0,0,0,0,0]
+        self.nh_mac = nh_mac if nh_mac != None else [0,0,0,0,0,0]
+        self.src_ip = src_ip if src_ip != None else 0
+        self.dst_ip = dst_ip if dst_ip != None else 0
+        self.dscp = dscp if dscp != None else 0
+        self.ttl = ttl if ttl != None else 0
+        self.vpn = vpn if vpn != None else 0
+        self.rate_limit = rate_limit if rate_limit != None else 0
+        self.if_name = if_name if if_name != None else ""
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!L", self.flags))
         packed.append(util.pack_port_no(self.port_no))
@@ -195,12 +136,11 @@ class bsn_vport_l2gre(bsn_vport):
         packed.append(struct.pack("!L", self.src_ip))
         packed.append(struct.pack("!L", self.dst_ip))
         packed.append(struct.pack("!B", self.dscp))
-        packed.append(struct.pack("!B", self.ttl))
-        packed.append('\x00' * 2)
+        packed.extend((struct.pack("!B", self.ttl), '\x00' * 2))
         packed.append(struct.pack("!L", self.vpn))
         packed.append(struct.pack("!L", self.rate_limit))
         packed.append(struct.pack("!16s", self.if_name))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -240,8 +180,7 @@ class bsn_vport_l2gre(bsn_vport):
         if self.ttl != other.ttl: return False
         if self.vpn != other.vpn: return False
         if self.rate_limit != other.rate_limit: return False
-        if self.if_name != other.if_name: return False
-        return True
+        return self.if_name == other.if_name
 
     def pretty_print(self, q):
         q.text("bsn_vport_l2gre {")
@@ -293,35 +232,16 @@ class bsn_vport_q_in_q(bsn_vport):
     type = 0
 
     def __init__(self, port_no=None, ingress_tpid=None, ingress_vlan_id=None, egress_tpid=None, egress_vlan_id=None, if_name=None):
-        if port_no != None:
-            self.port_no = port_no
-        else:
-            self.port_no = 0
-        if ingress_tpid != None:
-            self.ingress_tpid = ingress_tpid
-        else:
-            self.ingress_tpid = 0
-        if ingress_vlan_id != None:
-            self.ingress_vlan_id = ingress_vlan_id
-        else:
-            self.ingress_vlan_id = 0
-        if egress_tpid != None:
-            self.egress_tpid = egress_tpid
-        else:
-            self.egress_tpid = 0
-        if egress_vlan_id != None:
-            self.egress_vlan_id = egress_vlan_id
-        else:
-            self.egress_vlan_id = 0
-        if if_name != None:
-            self.if_name = if_name
-        else:
-            self.if_name = ""
+        self.port_no = port_no if port_no != None else 0
+        self.ingress_tpid = ingress_tpid if ingress_tpid != None else 0
+        self.ingress_vlan_id = ingress_vlan_id if ingress_vlan_id != None else 0
+        self.egress_tpid = egress_tpid if egress_tpid != None else 0
+        self.egress_vlan_id = egress_vlan_id if egress_vlan_id != None else 0
+        self.if_name = if_name if if_name != None else ""
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!L", self.port_no))
         packed.append(struct.pack("!H", self.ingress_tpid))
@@ -329,7 +249,7 @@ class bsn_vport_q_in_q(bsn_vport):
         packed.append(struct.pack("!H", self.egress_tpid))
         packed.append(struct.pack("!H", self.egress_vlan_id))
         packed.append(struct.pack("!16s", self.if_name))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -356,8 +276,7 @@ class bsn_vport_q_in_q(bsn_vport):
         if self.ingress_vlan_id != other.ingress_vlan_id: return False
         if self.egress_tpid != other.egress_tpid: return False
         if self.egress_vlan_id != other.egress_vlan_id: return False
-        if self.if_name != other.if_name: return False
-        return True
+        return self.if_name == other.if_name
 
     def pretty_print(self, q):
         q.text("bsn_vport_q_in_q {")
@@ -389,33 +308,19 @@ bsn_vport.subtypes[0] = bsn_vport_q_in_q
 class bucket(loxi.OFObject):
 
     def __init__(self, weight=None, watch_port=None, watch_group=None, actions=None):
-        if weight != None:
-            self.weight = weight
-        else:
-            self.weight = 0
-        if watch_port != None:
-            self.watch_port = watch_port
-        else:
-            self.watch_port = 0
-        if watch_group != None:
-            self.watch_group = watch_group
-        else:
-            self.watch_group = 0
-        if actions != None:
-            self.actions = actions
-        else:
-            self.actions = []
+        self.weight = weight if weight != None else 0
+        self.watch_port = watch_port if watch_port != None else 0
+        self.watch_group = watch_group if watch_group != None else 0
+        self.actions = actions if actions != None else []
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", 0)) # placeholder for len at index 0
+        packed = [struct.pack("!H", 0)]
         packed.append(struct.pack("!H", self.weight))
         packed.append(util.pack_port_no(self.watch_port))
-        packed.append(struct.pack("!L", self.watch_group))
-        packed.append('\x00' * 4)
+        packed.extend((struct.pack("!L", self.watch_group), '\x00' * 4))
         packed.append(loxi.generic_util.pack_list(self.actions))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[0] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -437,8 +342,7 @@ class bucket(loxi.OFObject):
         if self.weight != other.weight: return False
         if self.watch_port != other.watch_port: return False
         if self.watch_group != other.watch_group: return False
-        if self.actions != other.actions: return False
-        return True
+        return self.actions == other.actions
 
     def pretty_print(self, q):
         q.text("bucket {")
@@ -463,19 +367,12 @@ class bucket(loxi.OFObject):
 class bucket_counter(loxi.OFObject):
 
     def __init__(self, packet_count=None, byte_count=None):
-        if packet_count != None:
-            self.packet_count = packet_count
-        else:
-            self.packet_count = 0
-        if byte_count != None:
-            self.byte_count = byte_count
-        else:
-            self.byte_count = 0
+        self.packet_count = packet_count if packet_count != None else 0
+        self.byte_count = byte_count if byte_count != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!Q", self.packet_count))
+        packed = [struct.pack("!Q", self.packet_count)]
         packed.append(struct.pack("!Q", self.byte_count))
         return ''.join(packed)
 
@@ -489,8 +386,7 @@ class bucket_counter(loxi.OFObject):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.packet_count != other.packet_count: return False
-        if self.byte_count != other.byte_count: return False
-        return True
+        return self.byte_count == other.byte_count
 
     def pretty_print(self, q):
         q.text("bucket_counter {")
@@ -509,69 +405,33 @@ class bucket_counter(loxi.OFObject):
 class flow_stats_entry(loxi.OFObject):
 
     def __init__(self, table_id=None, duration_sec=None, duration_nsec=None, priority=None, idle_timeout=None, hard_timeout=None, cookie=None, packet_count=None, byte_count=None, match=None, instructions=None):
-        if table_id != None:
-            self.table_id = table_id
-        else:
-            self.table_id = 0
-        if duration_sec != None:
-            self.duration_sec = duration_sec
-        else:
-            self.duration_sec = 0
-        if duration_nsec != None:
-            self.duration_nsec = duration_nsec
-        else:
-            self.duration_nsec = 0
-        if priority != None:
-            self.priority = priority
-        else:
-            self.priority = 0
-        if idle_timeout != None:
-            self.idle_timeout = idle_timeout
-        else:
-            self.idle_timeout = 0
-        if hard_timeout != None:
-            self.hard_timeout = hard_timeout
-        else:
-            self.hard_timeout = 0
-        if cookie != None:
-            self.cookie = cookie
-        else:
-            self.cookie = 0
-        if packet_count != None:
-            self.packet_count = packet_count
-        else:
-            self.packet_count = 0
-        if byte_count != None:
-            self.byte_count = byte_count
-        else:
-            self.byte_count = 0
-        if match != None:
-            self.match = match
-        else:
-            self.match = ofp.match()
-        if instructions != None:
-            self.instructions = instructions
-        else:
-            self.instructions = []
+        self.table_id = table_id if table_id != None else 0
+        self.duration_sec = duration_sec if duration_sec != None else 0
+        self.duration_nsec = duration_nsec if duration_nsec != None else 0
+        self.priority = priority if priority != None else 0
+        self.idle_timeout = idle_timeout if idle_timeout != None else 0
+        self.hard_timeout = hard_timeout if hard_timeout != None else 0
+        self.cookie = cookie if cookie != None else 0
+        self.packet_count = packet_count if packet_count != None else 0
+        self.byte_count = byte_count if byte_count != None else 0
+        self.match = match if match != None else ofp.match()
+        self.instructions = instructions if instructions != None else []
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", 0)) # placeholder for length at index 0
-        packed.append(struct.pack("!B", self.table_id))
-        packed.append('\x00' * 1)
+        packed = [struct.pack("!H", 0)]
+        packed.extend((struct.pack("!B", self.table_id), '\x00' * 1))
         packed.append(struct.pack("!L", self.duration_sec))
         packed.append(struct.pack("!L", self.duration_nsec))
         packed.append(struct.pack("!H", self.priority))
         packed.append(struct.pack("!H", self.idle_timeout))
-        packed.append(struct.pack("!H", self.hard_timeout))
-        packed.append('\x00' * 6)
+        packed.extend((struct.pack("!H", self.hard_timeout), '\x00' * 6))
         packed.append(struct.pack("!Q", self.cookie))
         packed.append(struct.pack("!Q", self.packet_count))
         packed.append(struct.pack("!Q", self.byte_count))
         packed.append(self.match.pack())
         packed.append(loxi.generic_util.pack_list(self.instructions))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[0] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -608,8 +468,7 @@ class flow_stats_entry(loxi.OFObject):
         if self.packet_count != other.packet_count: return False
         if self.byte_count != other.byte_count: return False
         if self.match != other.match: return False
-        if self.instructions != other.instructions: return False
-        return True
+        return self.instructions == other.instructions
 
     def pretty_print(self, q):
         q.text("flow_stats_entry {")
@@ -655,28 +514,17 @@ class flow_stats_entry(loxi.OFObject):
 class group_desc_stats_entry(loxi.OFObject):
 
     def __init__(self, group_type=None, group_id=None, buckets=None):
-        if group_type != None:
-            self.group_type = group_type
-        else:
-            self.group_type = 0
-        if group_id != None:
-            self.group_id = group_id
-        else:
-            self.group_id = 0
-        if buckets != None:
-            self.buckets = buckets
-        else:
-            self.buckets = []
+        self.group_type = group_type if group_type != None else 0
+        self.group_id = group_id if group_id != None else 0
+        self.buckets = buckets if buckets != None else []
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", 0)) # placeholder for length at index 0
-        packed.append(struct.pack("!B", self.group_type))
-        packed.append('\x00' * 1)
+        packed = [struct.pack("!H", 0)]
+        packed.extend((struct.pack("!B", self.group_type), '\x00' * 1))
         packed.append(struct.pack("!L", self.group_id))
         packed.append(loxi.generic_util.pack_list(self.buckets))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[0] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -696,8 +544,7 @@ class group_desc_stats_entry(loxi.OFObject):
         if type(self) != type(other): return False
         if self.group_type != other.group_type: return False
         if self.group_id != other.group_id: return False
-        if self.buckets != other.buckets: return False
-        return True
+        return self.buckets == other.buckets
 
     def pretty_print(self, q):
         q.text("group_desc_stats_entry {")
@@ -723,39 +570,21 @@ class group_desc_stats_entry(loxi.OFObject):
 class group_stats_entry(loxi.OFObject):
 
     def __init__(self, group_id=None, ref_count=None, packet_count=None, byte_count=None, bucket_stats=None):
-        if group_id != None:
-            self.group_id = group_id
-        else:
-            self.group_id = 0
-        if ref_count != None:
-            self.ref_count = ref_count
-        else:
-            self.ref_count = 0
-        if packet_count != None:
-            self.packet_count = packet_count
-        else:
-            self.packet_count = 0
-        if byte_count != None:
-            self.byte_count = byte_count
-        else:
-            self.byte_count = 0
-        if bucket_stats != None:
-            self.bucket_stats = bucket_stats
-        else:
-            self.bucket_stats = []
+        self.group_id = group_id if group_id != None else 0
+        self.ref_count = ref_count if ref_count != None else 0
+        self.packet_count = packet_count if packet_count != None else 0
+        self.byte_count = byte_count if byte_count != None else 0
+        self.bucket_stats = bucket_stats if bucket_stats != None else []
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", 0)) # placeholder for length at index 0
-        packed.append('\x00' * 2)
+        packed = [struct.pack("!H", 0), '\x00' * 2]
         packed.append(struct.pack("!L", self.group_id))
-        packed.append(struct.pack("!L", self.ref_count))
-        packed.append('\x00' * 4)
+        packed.extend((struct.pack("!L", self.ref_count), '\x00' * 4))
         packed.append(struct.pack("!Q", self.packet_count))
         packed.append(struct.pack("!Q", self.byte_count))
         packed.append(loxi.generic_util.pack_list(self.bucket_stats))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[0] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -780,8 +609,7 @@ class group_stats_entry(loxi.OFObject):
         if self.ref_count != other.ref_count: return False
         if self.packet_count != other.packet_count: return False
         if self.byte_count != other.byte_count: return False
-        if self.bucket_stats != other.bucket_stats: return False
-        return True
+        return self.bucket_stats == other.bucket_stats
 
     def pretty_print(self, q):
         q.text("group_stats_entry {")
@@ -810,18 +638,14 @@ class match_v3(loxi.OFObject):
     type = 1
 
     def __init__(self, oxm_list=None):
-        if oxm_list != None:
-            self.oxm_list = oxm_list
-        else:
-            self.oxm_list = []
+        self.oxm_list = oxm_list if oxm_list != None else []
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(loxi.generic_util.pack_list(self.oxm_list))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         packed.append(loxi.generic_util.pad_to(8, length))
         return ''.join(packed)
@@ -839,9 +663,7 @@ class match_v3(loxi.OFObject):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.oxm_list != other.oxm_list: return False
-        return True
+        return False if type(self) != type(other) else self.oxm_list == other.oxm_list
 
     def pretty_print(self, q):
         q.text("match_v3 {")
@@ -857,28 +679,17 @@ class match_v3(loxi.OFObject):
 class packet_queue(loxi.OFObject):
 
     def __init__(self, queue_id=None, port=None, properties=None):
-        if queue_id != None:
-            self.queue_id = queue_id
-        else:
-            self.queue_id = 0
-        if port != None:
-            self.port = port
-        else:
-            self.port = 0
-        if properties != None:
-            self.properties = properties
-        else:
-            self.properties = []
+        self.queue_id = queue_id if queue_id != None else 0
+        self.port = port if port != None else 0
+        self.properties = properties if properties != None else []
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!L", self.queue_id))
+        packed = [struct.pack("!L", self.queue_id)]
         packed.append(util.pack_port_no(self.port))
-        packed.append(struct.pack("!H", 0)) # placeholder for len at index 2
-        packed.append('\x00' * 6)
+        packed.extend((struct.pack("!H", 0), '\x00' * 6))
         packed.append(loxi.generic_util.pack_list(self.properties))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -898,8 +709,7 @@ class packet_queue(loxi.OFObject):
         if type(self) != type(other): return False
         if self.queue_id != other.queue_id: return False
         if self.port != other.port: return False
-        if self.properties != other.properties: return False
-        return True
+        return self.properties == other.properties
 
     def pretty_print(self, q):
         q.text("packet_queue {")
@@ -921,58 +731,22 @@ class packet_queue(loxi.OFObject):
 class port_desc(loxi.OFObject):
 
     def __init__(self, port_no=None, hw_addr=None, name=None, config=None, state=None, curr=None, advertised=None, supported=None, peer=None, curr_speed=None, max_speed=None):
-        if port_no != None:
-            self.port_no = port_no
-        else:
-            self.port_no = 0
-        if hw_addr != None:
-            self.hw_addr = hw_addr
-        else:
-            self.hw_addr = [0,0,0,0,0,0]
-        if name != None:
-            self.name = name
-        else:
-            self.name = ""
-        if config != None:
-            self.config = config
-        else:
-            self.config = 0
-        if state != None:
-            self.state = state
-        else:
-            self.state = 0
-        if curr != None:
-            self.curr = curr
-        else:
-            self.curr = 0
-        if advertised != None:
-            self.advertised = advertised
-        else:
-            self.advertised = 0
-        if supported != None:
-            self.supported = supported
-        else:
-            self.supported = 0
-        if peer != None:
-            self.peer = peer
-        else:
-            self.peer = 0
-        if curr_speed != None:
-            self.curr_speed = curr_speed
-        else:
-            self.curr_speed = 0
-        if max_speed != None:
-            self.max_speed = max_speed
-        else:
-            self.max_speed = 0
+        self.port_no = port_no if port_no != None else 0
+        self.hw_addr = hw_addr if hw_addr != None else [0,0,0,0,0,0]
+        self.name = name if name != None else ""
+        self.config = config if config != None else 0
+        self.state = state if state != None else 0
+        self.curr = curr if curr != None else 0
+        self.advertised = advertised if advertised != None else 0
+        self.supported = supported if supported != None else 0
+        self.peer = peer if peer != None else 0
+        self.curr_speed = curr_speed if curr_speed != None else 0
+        self.max_speed = max_speed if max_speed != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(util.pack_port_no(self.port_no))
-        packed.append('\x00' * 4)
-        packed.append(struct.pack("!6B", *self.hw_addr))
-        packed.append('\x00' * 2)
+        packed = [util.pack_port_no(self.port_no), '\x00' * 4]
+        packed.extend((struct.pack("!6B", *self.hw_addr), '\x00' * 2))
         packed.append(struct.pack("!16s", self.name))
         packed.append(struct.pack("!L", self.config))
         packed.append(struct.pack("!L", self.state))
@@ -1014,8 +788,7 @@ class port_desc(loxi.OFObject):
         if self.supported != other.supported: return False
         if self.peer != other.peer: return False
         if self.curr_speed != other.curr_speed: return False
-        if self.max_speed != other.max_speed: return False
-        return True
+        return self.max_speed == other.max_speed
 
     def pretty_print(self, q):
         q.text("port_desc {")
@@ -1067,64 +840,23 @@ class port_desc(loxi.OFObject):
 class port_stats_entry(loxi.OFObject):
 
     def __init__(self, port_no=None, rx_packets=None, tx_packets=None, rx_bytes=None, tx_bytes=None, rx_dropped=None, tx_dropped=None, rx_errors=None, tx_errors=None, rx_frame_err=None, rx_over_err=None, rx_crc_err=None, collisions=None):
-        if port_no != None:
-            self.port_no = port_no
-        else:
-            self.port_no = 0
-        if rx_packets != None:
-            self.rx_packets = rx_packets
-        else:
-            self.rx_packets = 0
-        if tx_packets != None:
-            self.tx_packets = tx_packets
-        else:
-            self.tx_packets = 0
-        if rx_bytes != None:
-            self.rx_bytes = rx_bytes
-        else:
-            self.rx_bytes = 0
-        if tx_bytes != None:
-            self.tx_bytes = tx_bytes
-        else:
-            self.tx_bytes = 0
-        if rx_dropped != None:
-            self.rx_dropped = rx_dropped
-        else:
-            self.rx_dropped = 0
-        if tx_dropped != None:
-            self.tx_dropped = tx_dropped
-        else:
-            self.tx_dropped = 0
-        if rx_errors != None:
-            self.rx_errors = rx_errors
-        else:
-            self.rx_errors = 0
-        if tx_errors != None:
-            self.tx_errors = tx_errors
-        else:
-            self.tx_errors = 0
-        if rx_frame_err != None:
-            self.rx_frame_err = rx_frame_err
-        else:
-            self.rx_frame_err = 0
-        if rx_over_err != None:
-            self.rx_over_err = rx_over_err
-        else:
-            self.rx_over_err = 0
-        if rx_crc_err != None:
-            self.rx_crc_err = rx_crc_err
-        else:
-            self.rx_crc_err = 0
-        if collisions != None:
-            self.collisions = collisions
-        else:
-            self.collisions = 0
+        self.port_no = port_no if port_no != None else 0
+        self.rx_packets = rx_packets if rx_packets != None else 0
+        self.tx_packets = tx_packets if tx_packets != None else 0
+        self.rx_bytes = rx_bytes if rx_bytes != None else 0
+        self.tx_bytes = tx_bytes if tx_bytes != None else 0
+        self.rx_dropped = rx_dropped if rx_dropped != None else 0
+        self.tx_dropped = tx_dropped if tx_dropped != None else 0
+        self.rx_errors = rx_errors if rx_errors != None else 0
+        self.tx_errors = tx_errors if tx_errors != None else 0
+        self.rx_frame_err = rx_frame_err if rx_frame_err != None else 0
+        self.rx_over_err = rx_over_err if rx_over_err != None else 0
+        self.rx_crc_err = rx_crc_err if rx_crc_err != None else 0
+        self.collisions = collisions if collisions != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(util.pack_port_no(self.port_no))
-        packed.append('\x00' * 4)
+        packed = [util.pack_port_no(self.port_no), '\x00' * 4]
         packed.append(struct.pack("!Q", self.rx_packets))
         packed.append(struct.pack("!Q", self.tx_packets))
         packed.append(struct.pack("!Q", self.rx_bytes))
@@ -1172,8 +904,7 @@ class port_stats_entry(loxi.OFObject):
         if self.rx_frame_err != other.rx_frame_err: return False
         if self.rx_over_err != other.rx_over_err: return False
         if self.rx_crc_err != other.rx_crc_err: return False
-        if self.collisions != other.collisions: return False
-        return True
+        return self.collisions == other.collisions
 
     def pretty_print(self, q):
         q.text("port_stats_entry {")
@@ -1227,26 +958,20 @@ class queue_prop(loxi.OFObject):
 
 
     def __init__(self, type=None):
-        if type != None:
-            self.type = type
-        else:
-            self.type = 0
+        self.type = type if type != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
-        packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
-        packed.append('\x00' * 4)
-        length = sum([len(x) for x in packed])
+        packed = [struct.pack("!H", self.type)]
+        packed.extend((struct.pack("!H", 0), '\x00' * 4))
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
     @staticmethod
     def unpack(reader):
         subtype, = reader.peek('!H', 0)
-        subclass = queue_prop.subtypes.get(subtype)
-        if subclass:
+        if subclass := queue_prop.subtypes.get(subtype):
             return subclass.unpack(reader)
 
         obj = queue_prop()
@@ -1258,9 +983,7 @@ class queue_prop(loxi.OFObject):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.type != other.type: return False
-        return True
+        return False if type(self) != type(other) else self.type == other.type
 
     def pretty_print(self, q):
         q.text("queue_prop {")
@@ -1277,33 +1000,23 @@ class queue_prop_experimenter(queue_prop):
     type = 65535
 
     def __init__(self, experimenter=None, data=None):
-        if experimenter != None:
-            self.experimenter = experimenter
-        else:
-            self.experimenter = 0
-        if data != None:
-            self.data = data
-        else:
-            self.data = ''
+        self.experimenter = experimenter if experimenter != None else 0
+        self.data = data if data != None else ''
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
-        packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
-        packed.append('\x00' * 4)
-        packed.append(struct.pack("!L", self.experimenter))
-        packed.append('\x00' * 4)
+        packed = [struct.pack("!H", self.type)]
+        packed.extend((struct.pack("!H", 0), '\x00' * 4))
+        packed.extend((struct.pack("!L", self.experimenter), '\x00' * 4))
         packed.append(self.data)
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
     @staticmethod
     def unpack(reader):
         subtype, = reader.peek('!L', 8)
-        subclass = queue_prop_experimenter.subtypes.get(subtype)
-        if subclass:
+        if subclass := queue_prop_experimenter.subtypes.get(subtype):
             return subclass.unpack(reader)
 
         obj = queue_prop_experimenter()
@@ -1321,8 +1034,7 @@ class queue_prop_experimenter(queue_prop):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.experimenter != other.experimenter: return False
-        if self.data != other.data: return False
-        return True
+        return self.data == other.data
 
     def pretty_print(self, q):
         q.text("queue_prop_experimenter {")
@@ -1340,20 +1052,14 @@ class queue_prop_max_rate(queue_prop):
     type = 2
 
     def __init__(self, rate=None):
-        if rate != None:
-            self.rate = rate
-        else:
-            self.rate = 0
+        self.rate = rate if rate != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
-        packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
-        packed.append('\x00' * 4)
-        packed.append(struct.pack("!H", self.rate))
-        packed.append('\x00' * 6)
-        length = sum([len(x) for x in packed])
+        packed = [struct.pack("!H", self.type)]
+        packed.extend((struct.pack("!H", 0), '\x00' * 4))
+        packed.extend((struct.pack("!H", self.rate), '\x00' * 6))
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1371,9 +1077,7 @@ class queue_prop_max_rate(queue_prop):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.rate != other.rate: return False
-        return True
+        return False if type(self) != type(other) else self.rate == other.rate
 
     def pretty_print(self, q):
         q.text("queue_prop_max_rate {")
@@ -1391,20 +1095,14 @@ class queue_prop_min_rate(queue_prop):
     type = 1
 
     def __init__(self, rate=None):
-        if rate != None:
-            self.rate = rate
-        else:
-            self.rate = 0
+        self.rate = rate if rate != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
-        packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
-        packed.append('\x00' * 4)
-        packed.append(struct.pack("!H", self.rate))
-        packed.append('\x00' * 6)
-        length = sum([len(x) for x in packed])
+        packed = [struct.pack("!H", self.type)]
+        packed.extend((struct.pack("!H", 0), '\x00' * 4))
+        packed.extend((struct.pack("!H", self.rate), '\x00' * 6))
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1422,9 +1120,7 @@ class queue_prop_min_rate(queue_prop):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.rate != other.rate: return False
-        return True
+        return False if type(self) != type(other) else self.rate == other.rate
 
     def pretty_print(self, q):
         q.text("queue_prop_min_rate {")
@@ -1441,31 +1137,15 @@ queue_prop.subtypes[1] = queue_prop_min_rate
 class queue_stats_entry(loxi.OFObject):
 
     def __init__(self, port_no=None, queue_id=None, tx_bytes=None, tx_packets=None, tx_errors=None):
-        if port_no != None:
-            self.port_no = port_no
-        else:
-            self.port_no = 0
-        if queue_id != None:
-            self.queue_id = queue_id
-        else:
-            self.queue_id = 0
-        if tx_bytes != None:
-            self.tx_bytes = tx_bytes
-        else:
-            self.tx_bytes = 0
-        if tx_packets != None:
-            self.tx_packets = tx_packets
-        else:
-            self.tx_packets = 0
-        if tx_errors != None:
-            self.tx_errors = tx_errors
-        else:
-            self.tx_errors = 0
+        self.port_no = port_no if port_no != None else 0
+        self.queue_id = queue_id if queue_id != None else 0
+        self.tx_bytes = tx_bytes if tx_bytes != None else 0
+        self.tx_packets = tx_packets if tx_packets != None else 0
+        self.tx_errors = tx_errors if tx_errors != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(util.pack_port_no(self.port_no))
+        packed = [util.pack_port_no(self.port_no)]
         packed.append(struct.pack("!L", self.queue_id))
         packed.append(struct.pack("!Q", self.tx_bytes))
         packed.append(struct.pack("!Q", self.tx_packets))
@@ -1488,8 +1168,7 @@ class queue_stats_entry(loxi.OFObject):
         if self.queue_id != other.queue_id: return False
         if self.tx_bytes != other.tx_bytes: return False
         if self.tx_packets != other.tx_packets: return False
-        if self.tx_errors != other.tx_errors: return False
-        return True
+        return self.tx_errors == other.tx_errors
 
     def pretty_print(self, q):
         q.text("queue_stats_entry {")
@@ -1517,76 +1196,26 @@ class queue_stats_entry(loxi.OFObject):
 class table_stats_entry(loxi.OFObject):
 
     def __init__(self, table_id=None, name=None, match=None, wildcards=None, write_actions=None, apply_actions=None, write_setfields=None, apply_setfields=None, metadata_match=None, metadata_write=None, instructions=None, config=None, max_entries=None, active_count=None, lookup_count=None, matched_count=None):
-        if table_id != None:
-            self.table_id = table_id
-        else:
-            self.table_id = 0
-        if name != None:
-            self.name = name
-        else:
-            self.name = ""
-        if match != None:
-            self.match = match
-        else:
-            self.match = util.init_match_bmap()
-        if wildcards != None:
-            self.wildcards = wildcards
-        else:
-            self.wildcards = util.init_wc_bmap()
-        if write_actions != None:
-            self.write_actions = write_actions
-        else:
-            self.write_actions = 0
-        if apply_actions != None:
-            self.apply_actions = apply_actions
-        else:
-            self.apply_actions = 0
-        if write_setfields != None:
-            self.write_setfields = write_setfields
-        else:
-            self.write_setfields = 0
-        if apply_setfields != None:
-            self.apply_setfields = apply_setfields
-        else:
-            self.apply_setfields = 0
-        if metadata_match != None:
-            self.metadata_match = metadata_match
-        else:
-            self.metadata_match = 0
-        if metadata_write != None:
-            self.metadata_write = metadata_write
-        else:
-            self.metadata_write = 0
-        if instructions != None:
-            self.instructions = instructions
-        else:
-            self.instructions = 0
-        if config != None:
-            self.config = config
-        else:
-            self.config = 0
-        if max_entries != None:
-            self.max_entries = max_entries
-        else:
-            self.max_entries = 0
-        if active_count != None:
-            self.active_count = active_count
-        else:
-            self.active_count = 0
-        if lookup_count != None:
-            self.lookup_count = lookup_count
-        else:
-            self.lookup_count = 0
-        if matched_count != None:
-            self.matched_count = matched_count
-        else:
-            self.matched_count = 0
+        self.table_id = table_id if table_id != None else 0
+        self.name = name if name != None else ""
+        self.match = match if match != None else util.init_match_bmap()
+        self.wildcards = wildcards if wildcards != None else util.init_wc_bmap()
+        self.write_actions = write_actions if write_actions != None else 0
+        self.apply_actions = apply_actions if apply_actions != None else 0
+        self.write_setfields = write_setfields if write_setfields != None else 0
+        self.apply_setfields = apply_setfields if apply_setfields != None else 0
+        self.metadata_match = metadata_match if metadata_match != None else 0
+        self.metadata_write = metadata_write if metadata_write != None else 0
+        self.instructions = instructions if instructions != None else 0
+        self.config = config if config != None else 0
+        self.max_entries = max_entries if max_entries != None else 0
+        self.active_count = active_count if active_count != None else 0
+        self.lookup_count = lookup_count if lookup_count != None else 0
+        self.matched_count = matched_count if matched_count != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!B", self.table_id))
-        packed.append('\x00' * 7)
+        packed = [struct.pack("!B", self.table_id), '\x00' * 7]
         packed.append(struct.pack("!32s", self.name))
         packed.append(util.pack_match_bmap(self.match))
         packed.append(util.pack_wc_bmap(self.wildcards))
@@ -1643,8 +1272,7 @@ class table_stats_entry(loxi.OFObject):
         if self.max_entries != other.max_entries: return False
         if self.active_count != other.active_count: return False
         if self.lookup_count != other.lookup_count: return False
-        if self.matched_count != other.matched_count: return False
-        return True
+        return self.matched_count == other.matched_count
 
     def pretty_print(self, q):
         q.text("table_stats_entry {")

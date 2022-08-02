@@ -19,26 +19,20 @@ class instruction(loxi.OFObject):
 
 
     def __init__(self, type=None):
-        if type != None:
-            self.type = type
-        else:
-            self.type = 0
+        self.type = type if type != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
-        packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
-        packed.append('\x00' * 4)
-        length = sum([len(x) for x in packed])
+        packed = [struct.pack("!H", self.type)]
+        packed.extend((struct.pack("!H", 0), '\x00' * 4))
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
     @staticmethod
     def unpack(reader):
         subtype, = reader.peek('!H', 0)
-        subclass = instruction.subtypes.get(subtype)
-        if subclass:
+        if subclass := instruction.subtypes.get(subtype):
             return subclass.unpack(reader)
 
         obj = instruction()
@@ -50,9 +44,7 @@ class instruction(loxi.OFObject):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.type != other.type: return False
-        return True
+        return False if type(self) != type(other) else self.type == other.type
 
     def pretty_print(self, q):
         q.text("instruction {")
@@ -67,19 +59,14 @@ class apply_actions(instruction):
     type = 4
 
     def __init__(self, actions=None):
-        if actions != None:
-            self.actions = actions
-        else:
-            self.actions = []
+        self.actions = actions if actions != None else []
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
-        packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
-        packed.append('\x00' * 4)
+        packed = [struct.pack("!H", self.type)]
+        packed.extend((struct.pack("!H", 0), '\x00' * 4))
         packed.append(loxi.generic_util.pack_list(self.actions))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -96,9 +83,7 @@ class apply_actions(instruction):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.actions != other.actions: return False
-        return True
+        return False if type(self) != type(other) else self.actions == other.actions
 
     def pretty_print(self, q):
         q.text("apply_actions {")
@@ -119,11 +104,9 @@ class clear_actions(instruction):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
-        packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
-        packed.append('\x00' * 4)
-        length = sum([len(x) for x in packed])
+        packed = [struct.pack("!H", self.type)]
+        packed.extend((struct.pack("!H", 0), '\x00' * 4))
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -139,8 +122,7 @@ class clear_actions(instruction):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        return True
+        return type(self) == type(other)
 
     def pretty_print(self, q):
         q.text("clear_actions {")
@@ -158,31 +140,23 @@ class experimenter(instruction):
     type = 65535
 
     def __init__(self, experimenter=None, data=None):
-        if experimenter != None:
-            self.experimenter = experimenter
-        else:
-            self.experimenter = 0
-        if data != None:
-            self.data = data
-        else:
-            self.data = ''
+        self.experimenter = experimenter if experimenter != None else 0
+        self.data = data if data != None else ''
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
         packed.append(struct.pack("!L", self.experimenter))
         packed.append(self.data)
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
     @staticmethod
     def unpack(reader):
         subtype, = reader.peek('!L', 4)
-        subclass = experimenter.subtypes.get(subtype)
-        if subclass:
+        if subclass := experimenter.subtypes.get(subtype):
             return subclass.unpack(reader)
 
         obj = experimenter()
@@ -198,8 +172,7 @@ class experimenter(instruction):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.experimenter != other.experimenter: return False
-        if self.data != other.data: return False
-        return True
+        return self.data == other.data
 
     def pretty_print(self, q):
         q.text("experimenter {")
@@ -217,19 +190,14 @@ class goto_table(instruction):
     type = 1
 
     def __init__(self, table_id=None):
-        if table_id != None:
-            self.table_id = table_id
-        else:
-            self.table_id = 0
+        self.table_id = table_id if table_id != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
-        packed.append(struct.pack("!B", self.table_id))
-        packed.append('\x00' * 3)
-        length = sum([len(x) for x in packed])
+        packed.extend((struct.pack("!B", self.table_id), '\x00' * 3))
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -246,9 +214,7 @@ class goto_table(instruction):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.table_id != other.table_id: return False
-        return True
+        return False if type(self) != type(other) else self.table_id == other.table_id
 
     def pretty_print(self, q):
         q.text("goto_table {")
@@ -266,19 +232,14 @@ class write_actions(instruction):
     type = 3
 
     def __init__(self, actions=None):
-        if actions != None:
-            self.actions = actions
-        else:
-            self.actions = []
+        self.actions = actions if actions != None else []
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
-        packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
-        packed.append('\x00' * 4)
+        packed = [struct.pack("!H", self.type)]
+        packed.extend((struct.pack("!H", 0), '\x00' * 4))
         packed.append(loxi.generic_util.pack_list(self.actions))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -295,9 +256,7 @@ class write_actions(instruction):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.actions != other.actions: return False
-        return True
+        return False if type(self) != type(other) else self.actions == other.actions
 
     def pretty_print(self, q):
         q.text("write_actions {")
@@ -315,24 +274,16 @@ class write_metadata(instruction):
     type = 2
 
     def __init__(self, metadata=None, metadata_mask=None):
-        if metadata != None:
-            self.metadata = metadata
-        else:
-            self.metadata = 0
-        if metadata_mask != None:
-            self.metadata_mask = metadata_mask
-        else:
-            self.metadata_mask = 0
+        self.metadata = metadata if metadata != None else 0
+        self.metadata_mask = metadata_mask if metadata_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
-        packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
-        packed.append('\x00' * 4)
+        packed = [struct.pack("!H", self.type)]
+        packed.extend((struct.pack("!H", 0), '\x00' * 4))
         packed.append(struct.pack("!Q", self.metadata))
         packed.append(struct.pack("!Q", self.metadata_mask))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -352,8 +303,7 @@ class write_metadata(instruction):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.metadata != other.metadata: return False
-        if self.metadata_mask != other.metadata_mask: return False
-        return True
+        return self.metadata_mask == other.metadata_mask
 
     def pretty_print(self, q):
         q.text("write_metadata {")

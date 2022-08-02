@@ -19,25 +19,20 @@ class bsn_tlv(loxi.OFObject):
 
 
     def __init__(self, type=None):
-        if type != None:
-            self.type = type
-        else:
-            self.type = 0
+        self.type = type if type != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
     @staticmethod
     def unpack(reader):
         subtype, = reader.peek('!H', 0)
-        subclass = bsn_tlv.subtypes.get(subtype)
-        if subclass:
+        if subclass := bsn_tlv.subtypes.get(subtype):
             return subclass.unpack(reader)
 
         obj = bsn_tlv()
@@ -48,9 +43,7 @@ class bsn_tlv(loxi.OFObject):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.type != other.type: return False
-        return True
+        return False if type(self) != type(other) else self.type == other.type
 
     def pretty_print(self, q):
         q.text("bsn_tlv {")
@@ -65,18 +58,14 @@ class action_state(bsn_tlv):
     type = 226
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!H", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -92,9 +81,7 @@ class action_state(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("action_state {")
@@ -119,10 +106,9 @@ class active(bsn_tlv):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -137,8 +123,7 @@ class active(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        return True
+        return type(self) == type(other)
 
     def pretty_print(self, q):
         q.text("active {")
@@ -154,18 +139,14 @@ class actor_key(bsn_tlv):
     type = 44
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!H", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -181,9 +162,7 @@ class actor_key(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("actor_key {")
@@ -201,18 +180,14 @@ class actor_port_num(bsn_tlv):
     type = 43
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!H", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -228,9 +203,7 @@ class actor_port_num(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("actor_port_num {")
@@ -248,18 +221,14 @@ class actor_port_priority(bsn_tlv):
     type = 42
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!H", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -275,9 +244,7 @@ class actor_port_priority(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("actor_port_priority {")
@@ -295,18 +262,14 @@ class actor_state(bsn_tlv):
     type = 53
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!B", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -322,9 +285,7 @@ class actor_state(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("actor_state {")
@@ -343,18 +304,14 @@ class actor_system_mac(bsn_tlv):
     type = 41
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = [0,0,0,0,0,0]
+        self.value = value if value != None else [0,0,0,0,0,0]
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!6B", *self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -370,9 +327,7 @@ class actor_system_mac(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("actor_system_mac {")
@@ -390,18 +345,14 @@ class actor_system_priority(bsn_tlv):
     type = 40
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!H", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -417,9 +368,7 @@ class actor_system_priority(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("actor_system_priority {")
@@ -437,18 +386,14 @@ class admin_state(bsn_tlv):
     type = 216
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!B", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -464,9 +409,7 @@ class admin_state(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("admin_state {")
@@ -491,10 +434,9 @@ class analytics(bsn_tlv):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -509,8 +451,7 @@ class analytics(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        return True
+        return type(self) == type(other)
 
     def pretty_print(self, q):
         q.text("analytics {")
@@ -526,18 +467,14 @@ class anchor(bsn_tlv):
     type = 81
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!H", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -553,9 +490,7 @@ class anchor(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("anchor {")
@@ -577,18 +512,14 @@ class apply_bytes(bsn_tlv):
     type = 130
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!Q", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -604,9 +535,7 @@ class apply_bytes(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("apply_bytes {")
@@ -624,18 +553,14 @@ class apply_packets(bsn_tlv):
     type = 129
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!Q", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -651,9 +576,7 @@ class apply_packets(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("apply_packets {")
@@ -671,18 +594,14 @@ class arp_spa(bsn_tlv):
     type = 199
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!L", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -698,9 +617,7 @@ class arp_spa(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("arp_spa {")
@@ -718,18 +635,14 @@ class arp_tpa(bsn_tlv):
     type = 198
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!L", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -745,9 +658,7 @@ class arp_tpa(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("arp_tpa {")
@@ -765,18 +676,14 @@ class auto_negotiation(bsn_tlv):
     type = 144
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!B", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -792,9 +699,7 @@ class auto_negotiation(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("auto_negotiation {")
@@ -816,18 +721,14 @@ class bfd_endpoint(bsn_tlv):
     type = 176
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!B", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -843,9 +744,7 @@ class bfd_endpoint(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("bfd_endpoint {")
@@ -867,18 +766,14 @@ class bfd_state(bsn_tlv):
     type = 177
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!B", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -894,9 +789,7 @@ class bfd_state(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("bfd_state {")
@@ -918,18 +811,14 @@ class broadcast_query_timeout(bsn_tlv):
     type = 10
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!L", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -945,9 +834,7 @@ class broadcast_query_timeout(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("broadcast_query_timeout {")
@@ -965,18 +852,14 @@ class broadcast_rate(bsn_tlv):
     type = 90
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!L", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -992,9 +875,7 @@ class broadcast_rate(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("broadcast_rate {")
@@ -1012,18 +893,14 @@ class bucket(bsn_tlv):
     type = 64
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = []
+        self.value = value if value != None else []
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(loxi.generic_util.pack_list(self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1039,9 +916,7 @@ class bucket(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("bucket {")
@@ -1059,18 +934,14 @@ class circuit_id(bsn_tlv):
     type = 14
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = ''
+        self.value = value if value != None else ''
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(self.value)
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1086,9 +957,7 @@ class circuit_id(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("circuit_id {")
@@ -1109,10 +978,9 @@ class client_ll_addr(bsn_tlv):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1127,8 +995,7 @@ class client_ll_addr(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        return True
+        return type(self) == type(other)
 
     def pretty_print(self, q):
         q.text("client_ll_addr {")
@@ -1144,18 +1011,14 @@ class convergence_status(bsn_tlv):
     type = 45
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!B", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1171,9 +1034,7 @@ class convergence_status(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("convergence_status {")
@@ -1194,10 +1055,9 @@ class cpu_lag(bsn_tlv):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1212,8 +1072,7 @@ class cpu_lag(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        return True
+        return type(self) == type(other)
 
     def pretty_print(self, q):
         q.text("cpu_lag {")
@@ -1229,18 +1088,14 @@ class crc_enabled(bsn_tlv):
     type = 22
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!B", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1256,9 +1111,7 @@ class crc_enabled(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("crc_enabled {")
@@ -1276,18 +1129,14 @@ class data(bsn_tlv):
     type = 55
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = ''
+        self.value = value if value != None else ''
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(self.value)
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1303,9 +1152,7 @@ class data(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("data {")
@@ -1323,18 +1170,14 @@ class data_mask(bsn_tlv):
     type = 140
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = ''
+        self.value = value if value != None else ''
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(self.value)
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1350,9 +1193,7 @@ class data_mask(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("data_mask {")
@@ -1370,18 +1211,14 @@ class decap(bsn_tlv):
     type = 85
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!H", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1397,9 +1234,7 @@ class decap(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("decap {")
@@ -1424,10 +1259,9 @@ class disable_src_mac_check(bsn_tlv):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1442,8 +1276,7 @@ class disable_src_mac_check(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        return True
+        return type(self) == type(other)
 
     def pretty_print(self, q):
         q.text("disable_src_mac_check {")
@@ -1462,10 +1295,9 @@ class disable_xmit(bsn_tlv):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1480,8 +1312,7 @@ class disable_xmit(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        return True
+        return type(self) == type(other)
 
     def pretty_print(self, q):
         q.text("disable_xmit {")
@@ -1500,10 +1331,9 @@ class dns_analytics(bsn_tlv):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1518,8 +1348,7 @@ class dns_analytics(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        return True
+        return type(self) == type(other)
 
     def pretty_print(self, q):
         q.text("dns_analytics {")
@@ -1538,10 +1367,9 @@ class drop(bsn_tlv):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1556,8 +1384,7 @@ class drop(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        return True
+        return type(self) == type(other)
 
     def pretty_print(self, q):
         q.text("drop {")
@@ -1576,10 +1403,9 @@ class drop_control(bsn_tlv):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1594,8 +1420,7 @@ class drop_control(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        return True
+        return type(self) == type(other)
 
     def pretty_print(self, q):
         q.text("drop_control {")
@@ -1611,18 +1436,14 @@ class dscp(bsn_tlv):
     type = 112
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!H", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1638,9 +1459,7 @@ class dscp(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("dscp {")
@@ -1658,18 +1477,14 @@ class ecn(bsn_tlv):
     type = 132
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!B", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1685,9 +1500,7 @@ class ecn(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("ecn {")
@@ -1708,10 +1521,9 @@ class egress_only(bsn_tlv):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1726,8 +1538,7 @@ class egress_only(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        return True
+        return type(self) == type(other)
 
     def pretty_print(self, q):
         q.text("egress_only {")
@@ -1743,18 +1554,14 @@ class egress_port_group_id(bsn_tlv):
     type = 139
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!L", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1770,9 +1577,7 @@ class egress_port_group_id(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("egress_port_group_id {")
@@ -1790,18 +1595,14 @@ class egress_sampling_rate(bsn_tlv):
     type = 195
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!L", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1817,9 +1618,7 @@ class egress_sampling_rate(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("egress_sampling_rate {")
@@ -1837,18 +1636,14 @@ class encap(bsn_tlv):
     type = 175
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!B", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1864,9 +1659,7 @@ class encap(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("encap {")
@@ -1888,18 +1681,14 @@ class enhanced_hash_capability(bsn_tlv):
     type = 143
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!Q", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1915,9 +1704,7 @@ class enhanced_hash_capability(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("enhanced_hash_capability {")
@@ -1936,18 +1723,14 @@ class eth_dst(bsn_tlv):
     type = 33
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = [0,0,0,0,0,0]
+        self.value = value if value != None else [0,0,0,0,0,0]
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!6B", *self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1963,9 +1746,7 @@ class eth_dst(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("eth_dst {")
@@ -1983,18 +1764,14 @@ class eth_src(bsn_tlv):
     type = 32
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = [0,0,0,0,0,0]
+        self.value = value if value != None else [0,0,0,0,0,0]
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!6B", *self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2010,9 +1787,7 @@ class eth_src(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("eth_src {")
@@ -2030,18 +1805,14 @@ class eth_type(bsn_tlv):
     type = 131
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!H", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2057,9 +1828,7 @@ class eth_type(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("eth_type {")
@@ -2077,18 +1846,14 @@ class external_gateway_ip(bsn_tlv):
     type = 26
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!L", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2104,9 +1869,7 @@ class external_gateway_ip(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("external_gateway_ip {")
@@ -2124,18 +1887,14 @@ class external_gateway_mac(bsn_tlv):
     type = 29
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = [0,0,0,0,0,0]
+        self.value = value if value != None else [0,0,0,0,0,0]
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!6B", *self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2151,9 +1910,7 @@ class external_gateway_mac(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("external_gateway_mac {")
@@ -2171,18 +1928,14 @@ class external_ip(bsn_tlv):
     type = 23
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!L", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2198,9 +1951,7 @@ class external_ip(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("external_ip {")
@@ -2218,18 +1969,14 @@ class external_mac(bsn_tlv):
     type = 24
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = [0,0,0,0,0,0]
+        self.value = value if value != None else [0,0,0,0,0,0]
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!6B", *self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2245,9 +1992,7 @@ class external_mac(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("external_mac {")
@@ -2265,18 +2010,14 @@ class external_netmask(bsn_tlv):
     type = 25
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!L", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2292,9 +2033,7 @@ class external_netmask(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("external_netmask {")
@@ -2312,18 +2051,14 @@ class fabric_port_role(bsn_tlv):
     type = 165
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!H", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2339,9 +2074,7 @@ class fabric_port_role(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("fabric_port_role {")
@@ -2363,18 +2096,14 @@ class fail_count(bsn_tlv):
     type = 194
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!Q", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2390,9 +2119,7 @@ class fail_count(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("fail_count {")
@@ -2413,10 +2140,9 @@ class flood(bsn_tlv):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2431,8 +2157,7 @@ class flood(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        return True
+        return type(self) == type(other)
 
     def pretty_print(self, q):
         q.text("flood {")
@@ -2448,18 +2173,14 @@ class flow_classifier(bsn_tlv):
     type = 184
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!H", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2475,9 +2196,7 @@ class flow_classifier(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("flow_classifier {")
@@ -2502,10 +2221,9 @@ class flow_classify(bsn_tlv):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2520,8 +2238,7 @@ class flow_classify(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        return True
+        return type(self) == type(other)
 
     def pretty_print(self, q):
         q.text("flow_classify {")
@@ -2537,18 +2254,14 @@ class flow_identifier(bsn_tlv):
     type = 183
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!L", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2564,9 +2277,7 @@ class flow_identifier(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("flow_identifier {")
@@ -2587,10 +2298,9 @@ class force_link_up(bsn_tlv):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2605,8 +2315,7 @@ class force_link_up(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        return True
+        return type(self) == type(other)
 
     def pretty_print(self, q):
         q.text("force_link_up {")
@@ -2622,18 +2331,14 @@ class forward_error_correction(bsn_tlv):
     type = 149
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!B", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2649,9 +2354,7 @@ class forward_error_correction(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("forward_error_correction {")
@@ -2673,18 +2376,14 @@ class free_count(bsn_tlv):
     type = 215
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!L", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2700,9 +2399,7 @@ class free_count(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("free_count {")
@@ -2720,18 +2417,14 @@ class generation_id(bsn_tlv):
     type = 80
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!Q", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2747,9 +2440,7 @@ class generation_id(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("generation_id {")
@@ -2767,18 +2458,14 @@ class hash_algorithm(bsn_tlv):
     type = 145
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!H", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2794,9 +2481,7 @@ class hash_algorithm(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("hash_algorithm {")
@@ -2818,23 +2503,16 @@ class hash_gtp_header_match(bsn_tlv):
     type = 104
 
     def __init__(self, first_header_byte=None, first_header_mask=None):
-        if first_header_byte != None:
-            self.first_header_byte = first_header_byte
-        else:
-            self.first_header_byte = 0
-        if first_header_mask != None:
-            self.first_header_mask = first_header_mask
-        else:
-            self.first_header_mask = 0
+        self.first_header_byte = first_header_byte if first_header_byte != None else 0
+        self.first_header_mask = first_header_mask if first_header_mask != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!B", self.first_header_byte))
         packed.append(struct.pack("!B", self.first_header_mask))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2853,8 +2531,7 @@ class hash_gtp_header_match(bsn_tlv):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.first_header_byte != other.first_header_byte: return False
-        if self.first_header_mask != other.first_header_mask: return False
-        return True
+        return self.first_header_mask == other.first_header_mask
 
     def pretty_print(self, q):
         q.text("hash_gtp_header_match {")
@@ -2875,28 +2552,18 @@ class hash_gtp_port_match(bsn_tlv):
     type = 105
 
     def __init__(self, match=None, src_port=None, dst_port=None):
-        if match != None:
-            self.match = match
-        else:
-            self.match = 0
-        if src_port != None:
-            self.src_port = src_port
-        else:
-            self.src_port = 0
-        if dst_port != None:
-            self.dst_port = dst_port
-        else:
-            self.dst_port = 0
+        self.match = match if match != None else 0
+        self.src_port = src_port if src_port != None else 0
+        self.dst_port = dst_port if dst_port != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!B", self.match))
         packed.append(struct.pack("!H", self.src_port))
         packed.append(struct.pack("!H", self.dst_port))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2917,8 +2584,7 @@ class hash_gtp_port_match(bsn_tlv):
         if type(self) != type(other): return False
         if self.match != other.match: return False
         if self.src_port != other.src_port: return False
-        if self.dst_port != other.dst_port: return False
-        return True
+        return self.dst_port == other.dst_port
 
     def pretty_print(self, q):
         q.text("hash_gtp_port_match {")
@@ -2946,18 +2612,14 @@ class hash_packet_field(bsn_tlv):
     type = 103
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!Q", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -2973,9 +2635,7 @@ class hash_packet_field(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("hash_packet_field {")
@@ -2994,18 +2654,14 @@ class hash_packet_type(bsn_tlv):
     type = 102
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!B", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -3021,9 +2677,7 @@ class hash_packet_type(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("hash_packet_type {")
@@ -3045,23 +2699,16 @@ class hash_seed(bsn_tlv):
     type = 100
 
     def __init__(self, seed1=None, seed2=None):
-        if seed1 != None:
-            self.seed1 = seed1
-        else:
-            self.seed1 = 0
-        if seed2 != None:
-            self.seed2 = seed2
-        else:
-            self.seed2 = 0
+        self.seed1 = seed1 if seed1 != None else 0
+        self.seed2 = seed2 if seed2 != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!L", self.seed1))
         packed.append(struct.pack("!L", self.seed2))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -3079,9 +2726,7 @@ class hash_seed(bsn_tlv):
 
     def __eq__(self, other):
         if type(self) != type(other): return False
-        if self.seed1 != other.seed1: return False
-        if self.seed2 != other.seed2: return False
-        return True
+        return False if self.seed1 != other.seed1 else self.seed2 == other.seed2
 
     def pretty_print(self, q):
         q.text("hash_seed {")
@@ -3102,18 +2747,14 @@ class hash_type(bsn_tlv):
     type = 101
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!B", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -3129,9 +2770,7 @@ class hash_type(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("hash_type {")
@@ -3153,18 +2792,14 @@ class header_size(bsn_tlv):
     type = 31
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!L", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -3180,9 +2815,7 @@ class header_size(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("header_size {")
@@ -3200,18 +2833,14 @@ class icmp_code(bsn_tlv):
     type = 69
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!B", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -3227,9 +2856,7 @@ class icmp_code(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("icmp_code {")
@@ -3247,18 +2874,14 @@ class icmp_id(bsn_tlv):
     type = 70
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!H", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -3274,9 +2897,7 @@ class icmp_id(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("icmp_id {")
@@ -3294,18 +2915,14 @@ class icmp_type(bsn_tlv):
     type = 68
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!B", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -3321,9 +2938,7 @@ class icmp_type(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("icmp_type {")
@@ -3341,18 +2956,14 @@ class icmpv6_chksum(bsn_tlv):
     type = 125
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!H", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -3368,9 +2979,7 @@ class icmpv6_chksum(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("icmpv6_chksum {")
@@ -3388,18 +2997,14 @@ class icmpv6_code(bsn_tlv):
     type = 205
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!B", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -3415,9 +3020,7 @@ class icmpv6_code(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("icmpv6_code {")
@@ -3435,18 +3038,14 @@ class icmpv6_type(bsn_tlv):
     type = 204
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!B", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -3462,9 +3061,7 @@ class icmpv6_type(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("icmpv6_type {")
@@ -3482,18 +3079,14 @@ class identifier(bsn_tlv):
     type = 173
 
     def __init__(self, value=None):
-        if value != None:
-            self.value = value
-        else:
-            self.value = 0
+        self.value = value if value != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!L", self.value))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -3509,9 +3102,7 @@ class identifier(bsn_tlv):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.value != other.value: return False
-        return True
+        return False if type(self) != type(other) else self.value == other.value
 
     def pretty_print(self, q):
         q.text("identifier {")
@@ -3532,10 +3123,9 @@ class idle_notification(bsn_tlv):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 

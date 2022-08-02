@@ -3,6 +3,7 @@ Platform configuration file
 platform == vpi
 """
 
+
 ###############################################################################
 #
 # This platform module allows VPI port specifications on the command line. 
@@ -16,7 +17,7 @@ import dppv
 
 # The port specification is passed via the "--platform-args" option to OFTest. 
 # Note that we must guard against abbreviations supported by argparse
-if not "--platform-args" in " ".join(sys.argv):
+if "--platform-args" not in " ".join(sys.argv):
     raise Exception("--platform-args must be specified")
 
 ap = argparse.ArgumentParser("vpi")
@@ -29,7 +30,13 @@ for ps in ports:
     (p, vpi) = ps.split("@")
     vpi_port_map[int(p)] = vpi
 
-print vpi_port_map; 
+###############################################################################
+#
+# This platform module allows VPI port specifications on the command line. 
+#
+###############################################################################
+
+import sys 
 
 def platform_config_update(config):
     """

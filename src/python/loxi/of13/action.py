@@ -19,26 +19,20 @@ class action(loxi.OFObject):
 
 
     def __init__(self, type=None):
-        if type != None:
-            self.type = type
-        else:
-            self.type = 0
+        self.type = type if type != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
-        packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
-        packed.append('\x00' * 4)
-        length = sum([len(x) for x in packed])
+        packed = [struct.pack("!H", self.type)]
+        packed.extend((struct.pack("!H", 0), '\x00' * 4))
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
     @staticmethod
     def unpack(reader):
         subtype, = reader.peek('!H', 0)
-        subclass = action.subtypes.get(subtype)
-        if subclass:
+        if subclass := action.subtypes.get(subtype):
             return subclass.unpack(reader)
 
         obj = action()
@@ -50,9 +44,7 @@ class action(loxi.OFObject):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.type != other.type: return False
-        return True
+        return False if type(self) != type(other) else self.type == other.type
 
     def pretty_print(self, q):
         q.text("action {")
@@ -69,23 +61,16 @@ class experimenter(action):
     type = 65535
 
     def __init__(self, experimenter=None, data=None):
-        if experimenter != None:
-            self.experimenter = experimenter
-        else:
-            self.experimenter = 0
-        if data != None:
-            self.data = data
-        else:
-            self.data = ''
+        self.experimenter = experimenter if experimenter != None else 0
+        self.data = data if data != None else ''
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
         packed.append(struct.pack("!L", self.experimenter))
         packed.append(self.data)
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed.append(loxi.generic_util.pad_to(8, length))
         length += len(packed[-1])
         packed[1] = struct.pack("!H", length)
@@ -94,8 +79,7 @@ class experimenter(action):
     @staticmethod
     def unpack(reader):
         subtype, = reader.peek('!L', 4)
-        subclass = experimenter.subtypes.get(subtype)
-        if subclass:
+        if subclass := experimenter.subtypes.get(subtype):
             return subclass.unpack(reader)
 
         obj = experimenter()
@@ -111,8 +95,7 @@ class experimenter(action):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.experimenter != other.experimenter: return False
-        if self.data != other.data: return False
-        return True
+        return self.data == other.data
 
     def pretty_print(self, q):
         q.text("experimenter {")
@@ -133,28 +116,22 @@ class bsn(experimenter):
     experimenter = 6035143
 
     def __init__(self, subtype=None):
-        if subtype != None:
-            self.subtype = subtype
-        else:
-            self.subtype = 0
+        self.subtype = subtype if subtype != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
         packed.append(struct.pack("!L", self.experimenter))
-        packed.append(struct.pack("!L", self.subtype))
-        packed.append('\x00' * 4)
-        length = sum([len(x) for x in packed])
+        packed.extend((struct.pack("!L", self.subtype), '\x00' * 4))
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
     @staticmethod
     def unpack(reader):
         subtype, = reader.peek('!L', 8)
-        subclass = bsn.subtypes.get(subtype)
-        if subclass:
+        if subclass := bsn.subtypes.get(subtype):
             return subclass.unpack(reader)
 
         obj = bsn()
@@ -170,9 +147,7 @@ class bsn(experimenter):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.subtype != other.subtype: return False
-        return True
+        return False if type(self) != type(other) else self.subtype == other.subtype
 
     def pretty_print(self, q):
         q.text("bsn {")
@@ -190,20 +165,16 @@ class bsn_checksum(bsn):
     subtype = 4
 
     def __init__(self, checksum=None):
-        if checksum != None:
-            self.checksum = checksum
-        else:
-            self.checksum = 0
+        self.checksum = checksum if checksum != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
         packed.append(struct.pack("!L", self.experimenter))
         packed.append(struct.pack("!L", self.subtype))
         packed.append(util.pack_checksum_128(self.checksum))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -223,9 +194,7 @@ class bsn_checksum(bsn):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.checksum != other.checksum: return False
-        return True
+        return False if type(self) != type(other) else self.checksum == other.checksum
 
     def pretty_print(self, q):
         q.text("bsn_checksum {")
@@ -245,25 +214,18 @@ class bsn_gentable(bsn):
     subtype = 5
 
     def __init__(self, table_id=None, key=None):
-        if table_id != None:
-            self.table_id = table_id
-        else:
-            self.table_id = 0
-        if key != None:
-            self.key = key
-        else:
-            self.key = []
+        self.table_id = table_id if table_id != None else 0
+        self.key = key if key != None else []
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
         packed.append(struct.pack("!L", self.experimenter))
         packed.append(struct.pack("!L", self.subtype))
         packed.append(struct.pack("!L", self.table_id))
         packed.append(loxi.generic_util.pack_list(self.key))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -285,9 +247,7 @@ class bsn_gentable(bsn):
 
     def __eq__(self, other):
         if type(self) != type(other): return False
-        if self.table_id != other.table_id: return False
-        if self.key != other.key: return False
-        return True
+        return False if self.table_id != other.table_id else self.key == other.key
 
     def pretty_print(self, q):
         q.text("bsn_gentable {")
@@ -310,31 +270,20 @@ class bsn_mirror(bsn):
     subtype = 1
 
     def __init__(self, dest_port=None, vlan_tag=None, copy_stage=None):
-        if dest_port != None:
-            self.dest_port = dest_port
-        else:
-            self.dest_port = 0
-        if vlan_tag != None:
-            self.vlan_tag = vlan_tag
-        else:
-            self.vlan_tag = 0
-        if copy_stage != None:
-            self.copy_stage = copy_stage
-        else:
-            self.copy_stage = 0
+        self.dest_port = dest_port if dest_port != None else 0
+        self.vlan_tag = vlan_tag if vlan_tag != None else 0
+        self.copy_stage = copy_stage if copy_stage != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
         packed.append(struct.pack("!L", self.experimenter))
         packed.append(struct.pack("!L", self.subtype))
         packed.append(struct.pack("!L", self.dest_port))
         packed.append(struct.pack("!L", self.vlan_tag))
-        packed.append(struct.pack("!B", self.copy_stage))
-        packed.append('\x00' * 3)
-        length = sum([len(x) for x in packed])
+        packed.extend((struct.pack("!B", self.copy_stage), '\x00' * 3))
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -360,8 +309,7 @@ class bsn_mirror(bsn):
         if type(self) != type(other): return False
         if self.dest_port != other.dest_port: return False
         if self.vlan_tag != other.vlan_tag: return False
-        if self.copy_stage != other.copy_stage: return False
-        return True
+        return self.copy_stage == other.copy_stage
 
     def pretty_print(self, q):
         q.text("bsn_mirror {")
@@ -387,20 +335,16 @@ class bsn_set_tunnel_dst(bsn):
     subtype = 2
 
     def __init__(self, dst=None):
-        if dst != None:
-            self.dst = dst
-        else:
-            self.dst = 0
+        self.dst = dst if dst != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
         packed.append(struct.pack("!L", self.experimenter))
         packed.append(struct.pack("!L", self.subtype))
         packed.append(struct.pack("!L", self.dst))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -420,9 +364,7 @@ class bsn_set_tunnel_dst(bsn):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.dst != other.dst: return False
-        return True
+        return False if type(self) != type(other) else self.dst == other.dst
 
     def pretty_print(self, q):
         q.text("bsn_set_tunnel_dst {")
@@ -443,11 +385,9 @@ class copy_ttl_in(action):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
-        packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
-        packed.append('\x00' * 4)
-        length = sum([len(x) for x in packed])
+        packed = [struct.pack("!H", self.type)]
+        packed.extend((struct.pack("!H", 0), '\x00' * 4))
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -463,8 +403,7 @@ class copy_ttl_in(action):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        return True
+        return type(self) == type(other)
 
     def pretty_print(self, q):
         q.text("copy_ttl_in {")
@@ -483,11 +422,9 @@ class copy_ttl_out(action):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
-        packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
-        packed.append('\x00' * 4)
-        length = sum([len(x) for x in packed])
+        packed = [struct.pack("!H", self.type)]
+        packed.extend((struct.pack("!H", 0), '\x00' * 4))
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -503,8 +440,7 @@ class copy_ttl_out(action):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        return True
+        return type(self) == type(other)
 
     def pretty_print(self, q):
         q.text("copy_ttl_out {")
@@ -523,11 +459,9 @@ class dec_mpls_ttl(action):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
-        packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
-        packed.append('\x00' * 4)
-        length = sum([len(x) for x in packed])
+        packed = [struct.pack("!H", self.type)]
+        packed.extend((struct.pack("!H", 0), '\x00' * 4))
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -543,8 +477,7 @@ class dec_mpls_ttl(action):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        return True
+        return type(self) == type(other)
 
     def pretty_print(self, q):
         q.text("dec_mpls_ttl {")
@@ -563,11 +496,9 @@ class dec_nw_ttl(action):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
-        packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
-        packed.append('\x00' * 4)
-        length = sum([len(x) for x in packed])
+        packed = [struct.pack("!H", self.type)]
+        packed.extend((struct.pack("!H", 0), '\x00' * 4))
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -583,8 +514,7 @@ class dec_nw_ttl(action):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        return True
+        return type(self) == type(other)
 
     def pretty_print(self, q):
         q.text("dec_nw_ttl {")
@@ -600,18 +530,14 @@ class group(action):
     type = 22
 
     def __init__(self, group_id=None):
-        if group_id != None:
-            self.group_id = group_id
-        else:
-            self.group_id = 0
+        self.group_id = group_id if group_id != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
         packed.append(struct.pack("!L", self.group_id))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -627,9 +553,7 @@ class group(action):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.group_id != other.group_id: return False
-        return True
+        return False if type(self) != type(other) else self.group_id == other.group_id
 
     def pretty_print(self, q):
         q.text("group {")
@@ -650,29 +574,22 @@ class nicira(experimenter):
     experimenter = 8992
 
     def __init__(self, subtype=None):
-        if subtype != None:
-            self.subtype = subtype
-        else:
-            self.subtype = 0
+        self.subtype = subtype if subtype != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
         packed.append(struct.pack("!L", self.experimenter))
-        packed.append(struct.pack("!H", self.subtype))
-        packed.append('\x00' * 2)
-        packed.append('\x00' * 4)
-        length = sum([len(x) for x in packed])
+        packed.extend((struct.pack("!H", self.subtype), '\x00' * 2, '\x00' * 4))
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
     @staticmethod
     def unpack(reader):
         subtype, = reader.peek('!H', 8)
-        subclass = nicira.subtypes.get(subtype)
-        if subclass:
+        if subclass := nicira.subtypes.get(subtype):
             return subclass.unpack(reader)
 
         obj = nicira()
@@ -689,9 +606,7 @@ class nicira(experimenter):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.subtype != other.subtype: return False
-        return True
+        return False if type(self) != type(other) else self.subtype == other.subtype
 
     def pretty_print(self, q):
         q.text("nicira {")
@@ -712,14 +627,11 @@ class nicira_dec_ttl(nicira):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
         packed.append(struct.pack("!L", self.experimenter))
-        packed.append(struct.pack("!H", self.subtype))
-        packed.append('\x00' * 2)
-        packed.append('\x00' * 4)
-        length = sum([len(x) for x in packed])
+        packed.extend((struct.pack("!H", self.subtype), '\x00' * 2, '\x00' * 4))
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -740,8 +652,7 @@ class nicira_dec_ttl(nicira):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        return True
+        return type(self) == type(other)
 
     def pretty_print(self, q):
         q.text("nicira_dec_ttl {")
@@ -757,24 +668,16 @@ class output(action):
     type = 0
 
     def __init__(self, port=None, max_len=None):
-        if port != None:
-            self.port = port
-        else:
-            self.port = 0
-        if max_len != None:
-            self.max_len = max_len
-        else:
-            self.max_len = 0
+        self.port = port if port != None else 0
+        self.max_len = max_len if max_len != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
         packed.append(util.pack_port_no(self.port))
-        packed.append(struct.pack("!H", self.max_len))
-        packed.append('\x00' * 6)
-        length = sum([len(x) for x in packed])
+        packed.extend((struct.pack("!H", self.max_len), '\x00' * 6))
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -793,9 +696,7 @@ class output(action):
 
     def __eq__(self, other):
         if type(self) != type(other): return False
-        if self.port != other.port: return False
-        if self.max_len != other.max_len: return False
-        return True
+        return False if self.port != other.port else self.max_len == other.max_len
 
     def pretty_print(self, q):
         q.text("output {")
@@ -816,19 +717,14 @@ class pop_mpls(action):
     type = 20
 
     def __init__(self, ethertype=None):
-        if ethertype != None:
-            self.ethertype = ethertype
-        else:
-            self.ethertype = 0
+        self.ethertype = ethertype if ethertype != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
-        packed.append(struct.pack("!H", self.ethertype))
-        packed.append('\x00' * 2)
-        length = sum([len(x) for x in packed])
+        packed.extend((struct.pack("!H", self.ethertype), '\x00' * 2))
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -846,8 +742,7 @@ class pop_mpls(action):
 
     def __eq__(self, other):
         if type(self) != type(other): return False
-        if self.ethertype != other.ethertype: return False
-        return True
+        return self.ethertype == other.ethertype
 
     def pretty_print(self, q):
         q.text("pop_mpls {")
@@ -868,11 +763,9 @@ class pop_pbb(action):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
-        packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
-        packed.append('\x00' * 4)
-        length = sum([len(x) for x in packed])
+        packed = [struct.pack("!H", self.type)]
+        packed.extend((struct.pack("!H", 0), '\x00' * 4))
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -888,8 +781,7 @@ class pop_pbb(action):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        return True
+        return type(self) == type(other)
 
     def pretty_print(self, q):
         q.text("pop_pbb {")
@@ -908,11 +800,9 @@ class pop_vlan(action):
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
-        packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
-        packed.append('\x00' * 4)
-        length = sum([len(x) for x in packed])
+        packed = [struct.pack("!H", self.type)]
+        packed.extend((struct.pack("!H", 0), '\x00' * 4))
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -928,8 +818,7 @@ class pop_vlan(action):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        return True
+        return type(self) == type(other)
 
     def pretty_print(self, q):
         q.text("pop_vlan {")
@@ -945,19 +834,14 @@ class push_mpls(action):
     type = 19
 
     def __init__(self, ethertype=None):
-        if ethertype != None:
-            self.ethertype = ethertype
-        else:
-            self.ethertype = 0
+        self.ethertype = ethertype if ethertype != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
-        packed.append(struct.pack("!H", self.ethertype))
-        packed.append('\x00' * 2)
-        length = sum([len(x) for x in packed])
+        packed.extend((struct.pack("!H", self.ethertype), '\x00' * 2))
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -975,8 +859,7 @@ class push_mpls(action):
 
     def __eq__(self, other):
         if type(self) != type(other): return False
-        if self.ethertype != other.ethertype: return False
-        return True
+        return self.ethertype == other.ethertype
 
     def pretty_print(self, q):
         q.text("push_mpls {")
@@ -994,19 +877,14 @@ class push_pbb(action):
     type = 26
 
     def __init__(self, ethertype=None):
-        if ethertype != None:
-            self.ethertype = ethertype
-        else:
-            self.ethertype = 0
+        self.ethertype = ethertype if ethertype != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
-        packed.append(struct.pack("!H", self.ethertype))
-        packed.append('\x00' * 2)
-        length = sum([len(x) for x in packed])
+        packed.extend((struct.pack("!H", self.ethertype), '\x00' * 2))
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1024,8 +902,7 @@ class push_pbb(action):
 
     def __eq__(self, other):
         if type(self) != type(other): return False
-        if self.ethertype != other.ethertype: return False
-        return True
+        return self.ethertype == other.ethertype
 
     def pretty_print(self, q):
         q.text("push_pbb {")
@@ -1043,19 +920,14 @@ class push_vlan(action):
     type = 17
 
     def __init__(self, ethertype=None):
-        if ethertype != None:
-            self.ethertype = ethertype
-        else:
-            self.ethertype = 0
+        self.ethertype = ethertype if ethertype != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
-        packed.append(struct.pack("!H", self.ethertype))
-        packed.append('\x00' * 2)
-        length = sum([len(x) for x in packed])
+        packed.extend((struct.pack("!H", self.ethertype), '\x00' * 2))
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1073,8 +945,7 @@ class push_vlan(action):
 
     def __eq__(self, other):
         if type(self) != type(other): return False
-        if self.ethertype != other.ethertype: return False
-        return True
+        return self.ethertype == other.ethertype
 
     def pretty_print(self, q):
         q.text("push_vlan {")
@@ -1092,18 +963,14 @@ class set_field(action):
     type = 25
 
     def __init__(self, field=None):
-        if field != None:
-            self.field = field
-        else:
-            self.field = None
+        self.field = field if field != None else None
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
         packed.append(self.field.pack())
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed.append(loxi.generic_util.pad_to(8, length))
         length += len(packed[-1])
         packed[1] = struct.pack("!H", length)
@@ -1121,9 +988,7 @@ class set_field(action):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.field != other.field: return False
-        return True
+        return False if type(self) != type(other) else self.field == other.field
 
     def pretty_print(self, q):
         q.text("set_field {")
@@ -1141,19 +1006,14 @@ class set_mpls_ttl(action):
     type = 15
 
     def __init__(self, mpls_ttl=None):
-        if mpls_ttl != None:
-            self.mpls_ttl = mpls_ttl
-        else:
-            self.mpls_ttl = 0
+        self.mpls_ttl = mpls_ttl if mpls_ttl != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
-        packed.append(struct.pack("!B", self.mpls_ttl))
-        packed.append('\x00' * 3)
-        length = sum([len(x) for x in packed])
+        packed.extend((struct.pack("!B", self.mpls_ttl), '\x00' * 3))
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1170,9 +1030,7 @@ class set_mpls_ttl(action):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.mpls_ttl != other.mpls_ttl: return False
-        return True
+        return False if type(self) != type(other) else self.mpls_ttl == other.mpls_ttl
 
     def pretty_print(self, q):
         q.text("set_mpls_ttl {")
@@ -1190,19 +1048,14 @@ class set_nw_ttl(action):
     type = 23
 
     def __init__(self, nw_ttl=None):
-        if nw_ttl != None:
-            self.nw_ttl = nw_ttl
-        else:
-            self.nw_ttl = 0
+        self.nw_ttl = nw_ttl if nw_ttl != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
-        packed.append(struct.pack("!B", self.nw_ttl))
-        packed.append('\x00' * 3)
-        length = sum([len(x) for x in packed])
+        packed.extend((struct.pack("!B", self.nw_ttl), '\x00' * 3))
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1219,9 +1072,7 @@ class set_nw_ttl(action):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.nw_ttl != other.nw_ttl: return False
-        return True
+        return False if type(self) != type(other) else self.nw_ttl == other.nw_ttl
 
     def pretty_print(self, q):
         q.text("set_nw_ttl {")
@@ -1239,18 +1090,14 @@ class set_queue(action):
     type = 21
 
     def __init__(self, queue_id=None):
-        if queue_id != None:
-            self.queue_id = queue_id
-        else:
-            self.queue_id = 0
+        self.queue_id = queue_id if queue_id != None else 0
         return
 
     def pack(self):
-        packed = []
-        packed.append(struct.pack("!H", self.type))
+        packed = [struct.pack("!H", self.type)]
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
         packed.append(struct.pack("!L", self.queue_id))
-        length = sum([len(x) for x in packed])
+        length = sum(len(x) for x in packed)
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
@@ -1266,9 +1113,7 @@ class set_queue(action):
         return obj
 
     def __eq__(self, other):
-        if type(self) != type(other): return False
-        if self.queue_id != other.queue_id: return False
-        return True
+        return False if type(self) != type(other) else self.queue_id == other.queue_id
 
     def pretty_print(self, q):
         q.text("set_queue {")

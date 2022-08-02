@@ -36,7 +36,7 @@ class DataPlanePortOVSDummy:
         self.port_number = port_number
         self.txq = []
         self.rxbuf = ""
-        logname = "dp-" + interface_name
+        logname = f"dp-{interface_name}"
         self.logger = logging.getLogger(logname)
         try:
             self.socket = DataPlanePortOVSDummy.interface_open(interface_name)
@@ -55,7 +55,7 @@ class DataPlanePortOVSDummy:
         s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         s.settimeout(RCV_TIMEOUT)
         s.setblocking(0)
-        s.connect("%s/%s" % (RUN_DIR, interface_name))
+        s.connect(f"{RUN_DIR}/{interface_name}")
         return s
 
     def __del__(self):
@@ -85,9 +85,15 @@ class DataPlanePortOVSDummy:
             if len(data) == n and len(self.rxbuf) > 2:
                 rcvtime = time.time()
                 packet = self.rxbuf[2:]
-                self.logger.debug("Pkt len " + str(len(packet)) +
-                         " in at " + str(rcvtime) + " on port " +
-                         str(self.port_number))
+                self.logger.debug(
+                    (
+                        (f"Pkt len {len(packet)}" + " in at ")
+                        + str(rcvtime)
+                        + " on port "
+                    )
+                    + str(self.port_number)
+                )
+
                 self.rxbuf = ""
                 return (packet, rcvtime)
 

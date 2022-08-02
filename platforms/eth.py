@@ -11,10 +11,7 @@ def platform_config_update(config):
     @param config The configuration dictionary to use/update
     """
 
-    port_map = {}
-
-    for (ofport, interface) in config["interfaces"]:
-        port_map[ofport] = interface
+    port_map = dict(config["interfaces"])
 
     # Default to a veth configuration compatible with the reference switch
     if not port_map:
